@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Exams | Intensive Study Academy</title>
+
+  <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/theme.css" />
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="dashboard-header">
+  <div class="header-container">
+    <div class="logo">
+      <img src="../image/isa.png" alt="Intensive Study Academy Logo">
+    </div>
+
+    <div class="user-info">
+      <span class="welcome" id="studentName">Student</span>
+      <span class="matric" id="studentMatric">---</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= DASHBOARD LAYOUT ================= -->
+<div class="dashboard-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="dashboard-sidebar">
+    <ul>
+      <li><a href="./student-dashboard.html">Dashboard</a></li>
+      <li><a href="course-materials.html">Course Materials</a></li>
+      <li><a href="mock-exams.html" class="active">Mock Exams</a></li>
+      <li><a href="ai-assistant.html">AI Assistant</a></li>
+      <li><a href="student-profile.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- ================= MAIN ================= -->
+  <main class="dashboard-main">
+
+    <section class="page-header">
+      <h1 id="examTitle">Mock Exam</h1>
+      <p>Answer all questions before the timer ends.</p>
+    </section>
+
+    <section class="dashboard-section" id="startSection">
+      <h2>Mock Exam Access</h2>
+      <p id="attemptInfo">You have 2 free attempts.</p>
+      <div class="modal-actions">
+        <button id="startExamBtn" class="primary-btn" type="button">Start Free Mock</button>
+        <button id="upgradeBtn" class="secondary-btn" type="button">Upgrade</button>
+      </div>
+    </section>
+
+    <section class="dashboard-section" id="examSection" hidden>
+      <div id="examTimer" class="access-card">Time left: 90:00</div>
+      <div id="examStatus">Loading questions...</div>
+      <form id="examForm"></form>
+      <button id="submitExamBtn" class="primary-btn" type="button">Submit Exam</button>
+    </section>
+
+    <section class="dashboard-section" id="resultSection" hidden>
+      <h2>Result</h2>
+      <div id="resultSummary"></div>
+      <div id="explanations"></div>
+      <div id="aiSummary" class="access-card" hidden></div>
+    </section>
+  </main>
+</div>
+
+<script src="../js/theme.js"></script>
+<script src="/js/studentGuard.js"></script>
+<script src="../js/mock-exams.js"></script>
+</body>
+</html>

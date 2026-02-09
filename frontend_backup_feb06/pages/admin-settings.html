@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | System Settings</title>
+
+  <!-- Shared Admin CSS -->
+  <link rel="stylesheet" href="../assets/global.css">
+  <link rel="stylesheet" href="../assets/admin-base.css">
+  <link rel="stylesheet" href="../assets/admin-dashboard.css">
+</head>
+<body>
+
+  <!-- ===== ADMIN LAYOUT ===== -->
+  <div class="admin-container">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Admin Panel</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="admin-dashboard.html">Dashboard</a></li>
+          <li><a href="admin-dashboard.html">Material Approval</a></li>
+          <li><a href="admin-staff.html">Staff</a></li>
+          <li><a href="admin-students.html">Students</a></li>
+          <li class="active"><a href="admin-settings.html">System Settings</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="#" class="logout">Logout</a>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="admin-main">
+
+      <section class="page">
+
+        <header class="page-header">
+          <h1>System Settings</h1>
+          <p>Configure platform-wide settings and administrative controls.</p>
+        </header>
+
+        <!-- Platform Status -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Platform Status</h2>
+          </div>
+
+          <div class="form-group">
+            <label>System Mode</label>
+            <select>
+              <option>Live</option>
+              <option>Maintenance</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Allow Student Access</label>
+            <select>
+              <option>Enabled</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Academic Configuration -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Academic Configuration</h2>
+          </div>
+
+          <div class="form-group">
+            <label>Current Academic Session</label>
+            <input type="text" placeholder="e.g. 2025 / 2026" />
+          </div>
+
+          <div class="form-group">
+            <label>Semester</label>
+            <select>
+              <option>First Semester</option>
+              <option>Second Semester</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Upload Rules -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Material Upload Rules</h2>
+          </div>
+
+          <div class="form-group">
+            <label>Maximum Upload Size (MB)</label>
+            <input type="number" placeholder="e.g. 50" />
+          </div>
+
+          <div class="form-group">
+            <label>Allowed File Types</label>
+            <input type="text" placeholder="PDF, DOCX, PPT" />
+          </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Notifications</h2>
+          </div>
+
+          <div class="form-group">
+            <label>Email Notifications</label>
+            <select>
+              <option>Enabled</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Alerts</label>
+            <select>
+              <option>Enabled</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Save -->
+        <section class="card">
+          <button class="btn-primary">Save Settings</button>
+        </section>
+
+      </section>
+
+    </main>
+
+  </div>
+  <!-- ===== END ADMIN LAYOUT ===== -->
+<script src="../js/admin-guard.js"></script>
+
+</body>
+</html>

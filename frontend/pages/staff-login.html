@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staff Login | Intensive Study Academy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- use a simple auth css, not dashboard -->
+  <link rel="stylesheet" href="../css/auth.css" />
+</head>
+
+<body class="auth-page">
+
+  <main class="auth-card">
+    <h1>Staff Login</h1>
+    <p>
+      Enter your staff email address.<br />
+      A secure login link will be sent to your email.<br />
+      <strong>This link expires in 15 minutes.</strong>
+    </p>
+
+    <form id="staffLoginForm">
+  <label>
+    Staff Email
+    <input
+      type="email"
+      id="emailInput"
+      placeholder="you@isa.edu.ng"
+      required
+    />
+  </label>
+
+  <label>
+    Password
+    <input
+      type="password"
+      id="passwordInput"
+      placeholder="Enter your password"
+      required
+    />
+  </label>
+
+  <button type="submit">Login</button>
+</form>
+
+<p class="login-message" id="loginMessage"></p>
+
+
+  <script src="../js/staff-login.js"></script>
+</body>
+</html>

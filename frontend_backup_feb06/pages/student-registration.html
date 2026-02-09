@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Registration | ISA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../css/auth.css" />
+  <link
+  href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css"
+  rel="stylesheet"
+/>
+
+</head>
+
+<body class="student-registration-page">
+
+  <div class="auth-container">
+    <h2>Create Student Account</h2>
+    <p class="subtitle">
+      Fill in your academic details carefully. This is done once.
+    </p>
+
+    <form id="studentRegisterForm">
+
+      <!-- EMAIL -->
+      <label>Email Address</label>
+      <input
+        type="email"
+        name="email"
+        placeholder="student@example.com"
+        required
+      />
+
+      <!-- PASSWORD -->
+      <label>Password</label>
+      <div class="password-field">
+        <input
+          type="password"
+          id="password"  
+          name="password"
+          placeholder="Create a password"
+          required
+          /> 
+          <span id="togglePassword">👁️</span>     
+       </div>
+
+      
+      <!-- TITLE -->
+<label>Title</label>
+<select name="title" id="title" required>
+  <option value="">Select title</option>
+  <option value="Mr">Mr</option>
+  <option value="Miss">Miss</option>
+  <option value="Mrs">Mrs</option>
+</select>
+
+<!-- FULL NAME -->
+<label>Full Name</label>
+<input
+  type="text"
+  name="fullName"
+  id="fullName"
+  placeholder="e.g. Samson Adewale"
+  required
+/>
+
+
+<div class="form-group">
+  <label for="phone">Phone Number</label>
+  <input
+    type="tel"
+    id="phone"
+    name="phone"
+    placeholder="e.g. 08012345678"
+    required
+  />
+</div>
+
+
+      <!-- PROGRAM (SEARCHABLE) -->
+      <select id="programSelect" name="program" required>
+  <option value="">Select program</option>
+</select>
+
+      <!-- FACULTY (AUTO-FILLED, READONLY) -->
+      <label>Faculty</label>
+      <input
+  type="text"
+  id="faculty"
+  readonly
+  placeholder="Auto-filled based on program"
+/>
+
+      <!-- LEVEL -->
+      <label>Level</label>
+      <select name="level" required>
+        <option value="">Select level</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+        <option value="300">300</option>
+        <option value="400">400</option>
+      </select>
+
+      <!-- SEMESTER -->
+      <label>Semester</label>
+      <select name="semester" required>
+        <option value="">Select semester</option>
+        <option value="1st">1st Semester</option>
+        <option value="2nd">2nd Semester</option>
+      </select>
+
+      <!-- STUDY CENTER (SEARCHABLE) -->
+    <select id="studyCenter" name="studyCenter" required>
+  <option value="">Select study center</option>
+</select>
+
+<button type="submit" class="primary-btn">
+  Create Account
+</button>
+
+
+      <p class="auth-footer">
+        Already registered?
+        <a href="/frontend/pages/student-login.html">Sign in</a>
+      </p>
+
+    </form>
+  </div>
+<script src="../js/student-registration.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+</body>
+</html>

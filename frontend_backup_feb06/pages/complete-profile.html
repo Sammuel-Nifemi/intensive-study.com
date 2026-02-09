@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Complete Profile</title>
+  <link rel="stylesheet" href="../css/profile.css" />
+</head>
+
+<body>
+
+  <!-- 🔐 Auth check FIRST -->
+  <script src="/js/authOnlyGuard.js"></script>
+
+  <div class="profile-container">
+    <h1>Complete Your Profile</h1>
+    <p>Please complete your profile to access your dashboard</p>
+
+    <form id="completeProfileForm">
+
+      <input type="text" id="firstName" placeholder="First Name" required />
+      <input type="text" id="lastName" placeholder="Last Name" required />
+      <input type="text" id="phone" placeholder="Phone Number" required />
+
+      <button type="submit">Save & Continue</button>
+
+    </form>
+  </div>
+
+<script src="../js/complete-profile.js"></script>
+</body>
+</html>

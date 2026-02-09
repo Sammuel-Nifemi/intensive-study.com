@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Staff</title>
+
+  <!-- Shared Admin CSS -->
+  <link rel="stylesheet" href="../assets/global.css">
+  <link rel="stylesheet" href="../assets/admin-base.css">
+  <link rel="stylesheet" href="../assets/admin-dashboard.css">
+</head>
+<body>
+
+  <!-- ===== ADMIN LAYOUT (SAME AS DASHBOARD) ===== -->
+  <div class="admin-container">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Admin Panel</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="admin-dashboard.html">Dashboard</a></li>
+          <li><a href="admin-dashboard.html">Material Approval</a></li>
+          <li class="active"><a href="admin-staff.html">Staff</a></li>
+          <li><a href="admin-students.html">Students</a></li>
+          <li><a href="admin-settings.html">System Settings</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="#" class="logout">Logout</a>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="admin-main">
+
+      <section class="page">
+
+        <header class="page-header">
+          <h1>Staff</h1>
+          <p>Manage academic and administrative staff.</p>
+        </header>
+
+        <section class="card">
+          <div class="card-header">
+            <h2>Staff Directory</h2>
+          </div>
+
+         <table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Full Name</th>
+      <th>Role</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr data-status="active">
+      <td>1</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>
+        <span class="status-badge">Active</span>
+      </td>
+      <td>View | Edit</td>
+    </tr>
+
+    <tr data-status="inactive">
+      <td>2</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>
+        <span class="status-badge">Inactive</span>
+      </td>
+      <td>View | Edit</td>
+    </tr>
+  </tbody>
+</table>
+
+
+          </div>
+        </section>
+
+      </section>
+
+    </main>
+
+  </div>
+  <!-- ===== END ADMIN LAYOUT ===== -->
+<script src="../js/admin-guard.js"></script>
+
+</body>
+</html>

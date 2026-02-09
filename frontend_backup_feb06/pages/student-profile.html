@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard | Intensive Study Academy</title>
+  <link rel="stylesheet" href="../css/student-dashboard.css" />
+</head>
+
+<body>
+<header class="dashboard-header">
+  <div class="logo">
+    <img src="../image/isa.png" alt="Intensive Study Academy Logo">
+  </div>
+
+  <div class="user-info">
+<span>Welcome, <strong id="studentName">Loading...</strong></span>
+  </div>
+</header>
+
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="dashboard-sidebar">
+    <ul>
+      <li><a href="/frontend/pages/student-dashboard.html">Dashboard</a></li>
+      <li><a href="/frontend/pages/ai-assistant.html">AI Assistant</a></li>
+      <li><a href="/frontend/pages/student-profile.html">Profile</a></li>
+        <li><a href="#" id="logoutBtn">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main">
+
+    <!-- ACADEMIC CONTEXT CARD -->
+    <div class="card academic-context-card">
+      <p><strong>Programme:</strong> <span id="programme"></span></p>
+      <p><strong>Faculty:</strong> <span id="faculty"></span></p>
+      <p><strong>Level:</strong> <span id="level"></span></p>
+     <p><strong>Semester:</strong> <span id="semester"></span></p>
+    <p><strong>Study Center:</strong> <span id="studyCenter"></span></p>
+
+    </div>
+
+    <!-- PLACEHOLDER FOR OTHER CARDS -->
+    <div class="card">
+      <h3>Welcome</h3>
+      <p>Your academic resources will appear here.</p>
+    </div>
+
+    <div class="card announcement-card">
+  <h3>🎉 A Note to Our Students</h3>
+
+  <p>
+    We truly appreciate your tenacity and dedication.
+    We are proud of every step you take with us this semester.
+  </p>
+
+  <p>
+    Kindly note that at the end of every semester, we give a small token
+    of appreciation to students who actively use the platform and help
+    bring in their friends.
+  </p>
+
+  <p>
+    Your engagement, consistency, and referrals matter to us.
+  </p>
+
+  <button class="primary-btn" id="generateReferralBtn">
+    Generate Your Referral Link
+  </button>
+
+  <small class="muted-text">
+    Activity and engagement are tracked automatically.
+  </small>
+</div>
+  </main>
+
+  
+
+</div>
+
+<script src="../js/student-dashboard.js"></script>
+
+<script>
+document.getElementById("generateReferralBtn").addEventListener("click", () => {
+  const referralLink = "https://intensivestudyacademy.com/signup?ref=USER123";
+  navigator.clipboard.writeText(referralLink);
+  alert("Referral link copied to clipboard!");
+});
+</script>
+
+<script src="../js/activityTracker.js"></script>
+<script src="/frontend/js/logout.js"></script>
+</body>
+</html>

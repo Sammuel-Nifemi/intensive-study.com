@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academic Hub | Intensive Study Academy</title>
+
+  <!-- Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../index.css">
+  <link rel="stylesheet" href="../css/blog.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="header">
+  <a href="../index.html">
+    <img src="../image/isa.png" alt="Intensive Study Academy logo" class="logo">
+  </a>
+
+  <nav class="navbar">
+    <ul>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../pages/resources.html">Academic Resources</a></li>
+      <li><a href="../pages/blog.html">Academic Blog</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="blog-post">
+
+  <div class="post-intro">
+    <h1>Academic Hub</h1>
+    <p>Your courses, resources, and mock exams — all in one place.</p>
+  </div>
+
+  <!-- ================= ACADEMIC SUMMARY ================= -->
+  <section class="hub-card summary-card">
+    <div class="summary-left">
+      <h2 id="studentNameSummary">Student</h2>
+      <p class="summary-sub">Academic Summary</p>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span>Program</span>
+        <strong id="summaryProgram">—</strong>
+      </div>
+      <div class="summary-item">
+        <span>Faculty</span>
+        <strong id="summaryFaculty">—</strong>
+      </div>
+      <div class="summary-item">
+        <span>Level</span>
+        <strong id="summaryLevel">—</strong>
+      </div>
+      <div class="summary-item">
+        <span>Semester</span>
+        <strong id="summarySemester">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COURSE GRID ================= -->
+  <section class="resource-section">
+    <div id="courseList" class="course-grid"></div>
+  </section>
+
+  <!-- ================= MATERIALS ================= -->
+  <section class="resource-section">
+    <h2>Available Resources</h2>
+
+    <!-- SEARCH -->
+    <input
+      type="text"
+      id="resourceSearch"
+      placeholder="Search materials (e.g. summary, notes, pdf)"
+      class="resource-search"
+    />
+
+    <!-- JS RENDERS MATERIALS HERE -->
+    <div id="materialsContainer"></div>
+  </section>
+
+  <!-- ================= TIPS ================= -->
+  <section class="hub-card tips-card">
+    <h3>Student Tips</h3>
+    <ul>
+      <li>Review your summary notes before attempting mocks.</li>
+      <li>Practice under timed conditions to build confidence.</li>
+      <li>Focus on topics you missed in the last attempt.</li>
+    </ul>
+  </section>
+
+</main>
+<a href="https://wa.me/2347073859837" class="whatsapp-float" target="_blank" aria-label="Get help on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+  <span class="whatsapp-label">Get help</span>
+</a>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="footer-brand">
+    <img src="../image/isa.png" alt="Intensive Study Academy Logo">
+    <p>
+      Intensive Study Academy is a registered educational consulting and
+      academic support organization committed to clarity, integrity,
+      and student success.
+    </p>
+  </div>
+
+  <div class="footer-contact">
+    <h4>Contact</h4>
+    <p><strong>Phone:</strong> +234 803 927 4408</p>
+    <p><strong>Email:</strong> admin@intensivestudyacademy.com</p>
+    <p><strong>CAC Reg No:</strong> 9144243</p>
+  </div>
+
+  <div class="footer-social">
+    <h4>Connect</h4>
+    <div class="social-icons">
+      <a href="https://wa.me/2348039274408" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://www.instagram.com/intensive_study_group" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="mailto:admin@intensivestudyacademy.com"><i class="fas fa-envelope"></i></a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© <span id="year"></span> Intensive Study Academy.</p>
+  </div>
+</footer>
+
+<!-- ================= WATERMARK ================= -->
+<div class="system-watermark">
+  UNOFFICIAL · ACADEMIC GUIDANCE ONLY
+</div>
+
+<script src="../js/theme.js"></script>
+<script src="/js/studentGuard.js"></script>
+<!-- ================= SCRIPTS ================= -->
+<script src="../js/course-materials.js"></script>
+
+<!-- ================= SEARCH FILTER LOGIC ================= -->
+<script>
+  const searchInput = document.getElementById("resourceSearch");
+
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+    const cards = document.querySelectorAll(".material-card");
+
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(query) ? "" : "none";
+    });
+  });
+</script>
+
+</body>
+</html>
+
+
+

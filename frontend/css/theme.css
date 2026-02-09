@@ -1,0 +1,39 @@
+body[data-theme="classic"] {
+  background-color: #f6f8fb;
+}
+
+body[data-theme="ocean"] {
+  background-color: #eef6fb;
+}
+
+body[data-theme="sunset"] {
+  background-color: #fff3e6;
+}
+
+body[data-theme="forest"] {
+  background-color: #eef7f1;
+}
+
+body[data-theme="slate"] {
+  background-color: #f1f5f9;
+}
+
+body[data-theme="ocean"] .primary-btn,
+body[data-theme="ocean"] .btn.primary {
+  background: #1d4ed8;
+}
+
+body[data-theme="sunset"] .primary-btn,
+body[data-theme="sunset"] .btn.primary {
+  background: #ea580c;
+}
+
+body[data-theme="forest"] .primary-btn,
+body[data-theme="forest"] .btn.primary {
+  background: #15803d;
+}
+
+body[data-theme="slate"] .primary-btn,
+body[data-theme="slate"] .btn.primary {
+  background: #334155;
+}

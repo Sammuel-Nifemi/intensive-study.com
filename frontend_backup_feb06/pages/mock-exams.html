@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Exams | Intensive Study Academy</title>
+
+  <link rel="stylesheet" href="../css/student-dashboard.css" />
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="dashboard-header">
+  <div class="header-container">
+    <div class="logo">
+      <img src="../image/isa.png" alt="Intensive Study Academy Logo">
+    </div>
+
+    <div class="user-info">
+      <span class="welcome" id="studentName">Student</span>
+      <span class="matric" id="studentMatric">---</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= DASHBOARD LAYOUT ================= -->
+<div class="dashboard-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="dashboard-sidebar">
+    <ul>
+      <li><a href="./student-dashboard.html">Dashboard</a></li>
+      <li><a href="course-materials.html">Course Materials</a></li>
+      <li><a href="mock-exams.html" class="active">Mock Exams</a></li>
+      <li><a href="ai-assistant.html">AI Assistant</a></li>
+      <li><a href="student-profile.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- ================= MAIN ================= -->
+  <main class="dashboard-main">
+     
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+     <div class="access-card">
+  <h3>🎓 Mock Exam Access</h3>
+
+  <p>
+    You can take each mock exam
+    <strong>up to 2 times for free</strong>.
+  </p>
+
+  <p>
+    After that, unlock
+    <strong>full semester access</strong>
+    for just <strong>₦2,000</strong>.
+  </p>
+
+  <ul>
+    <li>✅ Unlimited mock exams</li>
+    <li>✅ Full AI explanations</li>
+    <li>✅ Performance review</li>
+    <li>✅ Access for the entire semester</li>
+  </ul>
+
+  <button class="upgrade-btn">
+    🔓 Unlock Full Access
+  </button>
+</div>
+
+    </section>
+
+    <!-- REGISTERED COURSES MOCK EXAMS -->
+    <section class="dashboard-section">
+      <h2>Available Mock Exams</h2>
+
+      <!-- ✅ JS RENDERS HERE -->
+      <div class="materials-grid" id="mockExamContainer">
+        <p>Loading mock exams...</p>
+      </div>
+    </section>
+
+    <!-- NOTE -->
+    <section class="dashboard-section">
+      <small>
+        Mock exams are provided only for approved courses
+        assigned to your program and semester.
+      </small>
+    </section>
+    <section class="mock-section">
+    <h1>Available Mock Exams</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Duration</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="examTable"></tbody>
+</table>
+    </section>
+  </main>
+</div>
+
+
+
+<!-- 🔓 UPGRADE MODAL -->
+<div id="upgradeModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Unlock Full Access</h2>
+
+    <p>
+      You’ve used your <strong>2 free mock attempts</strong>.
+      Unlock full semester access for just
+      <strong>₦2,000</strong>.
+    </p>
+
+    <ul>
+      <li>✅ Unlimited mock exams</li>
+      <li>✅ Full AI explanations</li>
+      <li>✅ Performance tracking</li>
+      <li>✅ Access for the entire semester</li>
+    </ul>
+
+    <div class="modal-actions">
+      <button id="payNowBtn" class="primary-btn">
+        🔓 Upgrade Now
+      </button>
+      <button id="closeModalBtn" class="secondary-btn">
+        Maybe later
+      </button>
+    </div>
+  </div>
+</div>
+<script src="/js/studentGuard.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="../js/mock-exams.js"></script>
+</body>
+</html>
