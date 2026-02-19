@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const adminOnly = require("../middleware/adminOnly");
+const authAdmin = require("../middleware/authAdmin");
 
 const User = require("../models/User");
 const Student = require("../models/Student");
@@ -16,7 +15,7 @@ const AdminSettings = require("../models/AdminSettings");
 /* =========================
    STATS
 ========================= */
-router.get("/stats", auth, adminOnly, async (req, res) => {
+router.get("/stats", authAdmin, async (req, res) => {
   try {
     const [students, staff, mocks] = await Promise.all([
       User.countDocuments({ role: "student" }),
@@ -33,7 +32,7 @@ router.get("/stats", auth, adminOnly, async (req, res) => {
 /* =========================
    STUDENTS
 ========================= */
-router.get("/students", auth, adminOnly, async (req, res) => {
+router.get("/students", authAdmin, async (req, res) => {
   try {
     const students = await User.find({ role: "student" })
       .select("fullName email status student");
@@ -43,7 +42,7 @@ router.get("/students", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.post("/students/flag", auth, adminOnly, async (req, res) => {
+router.post("/students/flag", authAdmin, async (req, res) => {
   try {
     const { studentId, reason } = req.body;
     if (!studentId || !reason) {
@@ -65,7 +64,7 @@ router.post("/students/flag", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.post("/students/suspend", auth, adminOnly, async (req, res) => {
+router.post("/students/suspend", authAdmin, async (req, res) => {
   try {
     const { studentId } = req.body;
     if (!studentId) return res.status(400).json({ message: "studentId required" });
@@ -85,7 +84,7 @@ router.post("/students/suspend", auth, adminOnly, async (req, res) => {
 /* =========================
    STAFF
 ========================= */
-router.get("/staff", auth, adminOnly, async (req, res) => {
+router.get("/staff", authAdmin, async (req, res) => {
   try {
     const staff = await User.find({ role: "staff" })
       .select("fullName email status");
@@ -95,7 +94,7 @@ router.get("/staff", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.post("/staff/create", auth, adminOnly, async (req, res) => {
+router.post("/staff/create", authAdmin, async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
     if (!fullName || !email || !password) {
@@ -122,7 +121,7 @@ router.post("/staff/create", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.post("/staff/disable", auth, adminOnly, async (req, res) => {
+router.post("/staff/disable", authAdmin, async (req, res) => {
   try {
     const { staffId } = req.body;
     if (!staffId) return res.status(400).json({ message: "staffId required" });
@@ -142,7 +141,7 @@ router.post("/staff/disable", auth, adminOnly, async (req, res) => {
 /* =========================
    CHANGE REQUESTS
 ========================= */
-router.get("/requests", auth, adminOnly, async (req, res) => {
+router.get("/requests", authAdmin, async (req, res) => {
   try {
     const requests = await ChangeRequest.find().sort({ createdAt: -1 });
     res.json(requests);
@@ -151,7 +150,7 @@ router.get("/requests", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.post("/requests/approve", auth, adminOnly, async (req, res) => {
+router.post("/requests/approve", authAdmin, async (req, res) => {
   try {
     const { requestId } = req.body;
     if (!requestId) return res.status(400).json({ message: "requestId required" });
@@ -167,7 +166,7 @@ router.post("/requests/approve", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.post("/requests/reject", auth, adminOnly, async (req, res) => {
+router.post("/requests/reject", authAdmin, async (req, res) => {
   try {
     const { requestId } = req.body;
     if (!requestId) return res.status(400).json({ message: "requestId required" });
@@ -186,7 +185,7 @@ router.post("/requests/reject", auth, adminOnly, async (req, res) => {
 /* =========================
    COMPLAINTS
 ========================= */
-router.get("/complaints", auth, adminOnly, async (req, res) => {
+router.get("/complaints", authAdmin, async (req, res) => {
   try {
     const complaints = await Complaint.find().sort({ createdAt: -1 });
     res.json(complaints);
@@ -198,7 +197,7 @@ router.get("/complaints", auth, adminOnly, async (req, res) => {
 /* =========================
    STUDY CENTER ANALYTICS
 ========================= */
-router.get("/study-centers/analytics", auth, adminOnly, async (req, res) => {
+router.get("/study-centers/analytics", authAdmin, async (req, res) => {
   try {
     const centers = await StudyCenter.find();
     const students = await Student.find().select("study_center");
@@ -224,7 +223,7 @@ router.get("/study-centers/analytics", auth, adminOnly, async (req, res) => {
 /* =========================
    SETTINGS
 ========================= */
-router.get("/settings", auth, adminOnly, async (req, res) => {
+router.get("/settings", authAdmin, async (req, res) => {
   try {
     let settings = await AdminSettings.findOne();
     if (!settings) {
@@ -236,7 +235,7 @@ router.get("/settings", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.put("/settings", auth, adminOnly, async (req, res) => {
+router.put("/settings", authAdmin, async (req, res) => {
   try {
     const { theme } = req.body;
     let settings = await AdminSettings.findOne();

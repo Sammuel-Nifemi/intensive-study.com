@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const authController = require("../controllers/authController");
-const authMiddleware = require("../middleware/auth");
+const authRoles = require("../middleware/authRoles");
+const authStudent = require("../middleware/authStudent");
 const User = require("../models/user"); // ADD THIS AT TOP
 
 /* ======================
@@ -32,7 +33,7 @@ router.post("/seed-admin", async (req, res) => {
 
 const Student = require("../models/Student");
 
-router.get("/student-me", authMiddleware, async (req, res) => {
+router.get("/student-me", authStudent, async (req, res) => {
   try {
     const student = await Student.findOne({ user_id: req.user.id })
       .populate("studyCenter")
@@ -56,10 +57,14 @@ router.get("/student-me", authMiddleware, async (req, res) => {
 
 router.post("/login", authController.login);
 router.post("/admin/login", authController.adminLogin);
+router.post("/staff/login", authController.staffLogin);
+router.post("/staff/verify-otp", authController.staffVerifyOtp);
+router.post("/staff/reset-password", authController.staffResetPassword);
+router.post("/staff/forgot-password", authController.staffForgotPassword);
 router.post("/student-login", authController.studentLogin); // student-only
 router.post("/register", authController.register);
-router.post("/logout", authMiddleware, authController.logout);
-router.get("/me", authMiddleware, authController.getMe);
+router.post("/logout", authRoles(["admin", "staff", "student"]), authController.logout);
+router.get("/me", authRoles(["admin", "staff", "student"]), authController.getMe);
 
 
 module.exports = router;

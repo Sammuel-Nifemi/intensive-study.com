@@ -47,7 +47,6 @@
       </a>
     </p>
   </div>
-<script src="/frontend/js/auth-debug.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("studentLoginForm");
@@ -108,10 +107,41 @@
           return;
         }
 
-       // SAVE TOKEN FIRST
-       localStorage.setItem("authToken", data.token);
+       // SAVE TOKEN
+       localStorage.setItem("studentToken", data.token);
 
-     // THEN GO DASHBOARD (NO TOKEN IN URL)
+       // VERIFY SESSION BEFORE REDIRECT
+       const profileRes = await fetch("http://localhost:5000/api/student/me", {
+         headers: { Authorization: `Bearer ${data.token}` }
+       });
+
+       if (profileRes.status === 401) {
+         localStorage.removeItem("studentToken");
+         message.textContent = "Login failed. Please try again.";
+         return;
+       }
+
+       if (profileRes.status === 403) {
+         const payload = await profileRes.json().catch(() => ({}));
+         if (payload?.redirectUrl) {
+           window.location.href = payload.redirectUrl;
+           return;
+         }
+       }
+
+       if (!profileRes.ok) {
+         localStorage.removeItem("studentToken");
+         message.textContent = "Unable to start session. Please try again.";
+         return;
+       }
+
+       const profile = await profileRes.json();
+       if (profile?.profileCompleted === false) {
+         window.location.href = "/frontend/pages/complete-profile.html";
+         return;
+       }
+
+       // THEN GO DASHBOARD (NO TOKEN IN URL)
        window.location.href = "/frontend/pages/student-dashboard.html";
       } catch (err) {
         console.error(err);

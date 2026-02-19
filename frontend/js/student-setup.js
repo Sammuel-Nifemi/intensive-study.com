@@ -103,7 +103,7 @@ setupForm.addEventListener("submit", async (e) => {
     courses: Array.from(coursesSelect.selectedOptions).map(o => o.value)
   };
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("studentToken");
 
   if (!token) {
     alert("Session expired. Please login again.");
@@ -131,3 +131,4 @@ window.location.href = "/frontend/pages/student-dashboard.html";
     alert("Unable to complete setup. Please try again.");
   }
 });
+

@@ -1,35 +1,33 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const studentGuard = require("../middleware/studentProfileGuard");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 
 const examController = require("../controllers/examController");
 
 // List published exams
 router.get(
   "/",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   examController.getAvailableExams
 );
 
 // Get exam questions
 router.get(
   "/:id",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   examController.getExamById
 );
 
-const auth = require("../middleware/auth");
-const studentGuard = require("../middleware/studentProfileGuard");
 const freeOrPaidGuard = require("../middleware/freeOrPaidGuard");
 
 router.get(
   "/:id",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   freeOrPaidGuard,
   examController.getExamById
 );

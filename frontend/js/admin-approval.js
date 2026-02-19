@@ -1,6 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("adminToken");
   const list = document.getElementById("pendingList");
 
   const res = await fetch("http://localhost:5000/api/materials/pending", {
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function approve(id) {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("adminToken");
 
   await fetch(`http://localhost:5000/api/materials/${id}/approve`, {
     method: "PUT",

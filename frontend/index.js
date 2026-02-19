@@ -2,7 +2,7 @@
 
 
 
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("studentToken");
 
 if (token) {
   // user is logged in → redirect

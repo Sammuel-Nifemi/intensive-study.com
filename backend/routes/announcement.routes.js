@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
+const authStudent = require("../middleware/authStudent");
 const Announcement = require("../models/Announcement");
 
 /* =========================
    STUDENT ANNOUNCEMENTS
 ========================= */
-router.get("/", auth, async (req, res) => {
+router.get("/", authStudent, async (req, res) => {
   try {
     const announcements = await Announcement.find()
       .sort({ createdAt: -1 });

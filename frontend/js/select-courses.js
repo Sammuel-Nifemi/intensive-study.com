@@ -1,9 +1,9 @@
-const MAX_COURSES = 11;
 const API_BASE = "http://localhost:5000";
 
 let studentProfile = null;
 let searchTimer = null;
 let curriculumCodes = new Set();
+let persistedCourseIds = new Set();
 
 document.addEventListener("DOMContentLoaded", async () => {
   applyTheme();
@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   await loadCourses(token);
+  await loadPersistedSelections(token);
+  applyPersistedSelections();
 });
 
 function applyTheme() {
@@ -58,6 +60,17 @@ function renderProfile(profile) {
 
 function getAllCourseCheckboxes() {
   return Array.from(document.querySelectorAll(".course-checkbox-item input[type='checkbox']"));
+}
+
+function getSelectedCourseIds() {
+  return Array.from(
+    new Set(
+      getAllCourseCheckboxes()
+        .filter((input) => input.checked)
+        .map((input) => String(input.value || "").trim())
+        .filter(Boolean)
+    )
+  );
 }
 
 function updateSelectedCount(count) {
@@ -85,7 +98,7 @@ function updateSelectionSummary(checkedInputs) {
   const selectedCourses = checkedInputs.map((input) => {
     const category = (input.dataset.category || "elective").toLowerCase();
     return {
-      code: String(input.value || "").trim().toUpperCase(),
+      code: String(input.dataset.courseCode || input.value || "").trim().toUpperCase(),
       title: String(input.dataset.title || "Untitled Course").trim(),
       category: category === "compulsory" ? "compulsory" : "elective"
     };
@@ -113,32 +126,17 @@ function updateSelectionSummary(checkedInputs) {
   summaryCard.hidden = false;
 }
 
-function toggleDisabledCheckboxes(checkedCount) {
-  const inputs = getAllCourseCheckboxes();
-  inputs.forEach((input) => {
-    input.disabled = !input.checked && checkedCount >= MAX_COURSES;
-  });
-}
-
 function syncSelectionState() {
   const inputs = getAllCourseCheckboxes();
   const checkedInputs = inputs.filter((input) => input.checked);
   updateSelectedCount(checkedInputs.length);
   updateSelectionSummary(checkedInputs);
-  toggleDisabledCheckboxes(checkedInputs.length);
 }
 
 function bindSelectionHandlers(root) {
   if (!root) return;
   root.querySelectorAll("input[type='checkbox']").forEach((input) => {
     input.addEventListener("change", () => {
-      const all = getAllCourseCheckboxes();
-      const checkedCount = all.filter((item) => item.checked).length;
-      if (checkedCount > MAX_COURSES) {
-        input.checked = false;
-        alert("Maximum 11 courses allowed per semester.");
-        return;
-      }
       syncSelectionState();
     });
   });
@@ -149,6 +147,8 @@ function renderCourseItems(items) {
     .map((course) => {
       const code = String(course.courseCode || course.code || "").trim().toUpperCase();
       if (!code) return "";
+      const courseId = String(course._id || course.id || course.courseId || code).trim();
+      const isChecked = persistedCourseIds.has(courseId);
 
       const title = course.title || "Untitled Course";
       const label = `${code} - ${title}`.trim();
@@ -159,7 +159,7 @@ function renderCourseItems(items) {
 
       return `
         <label class="course-checkbox-item">
-          <input type="checkbox" value="${code}" data-category="${normalizedCategory}" data-title="${title}" />
+          <input type="checkbox" value="${courseId}" data-course-code="${code}" data-category="${normalizedCategory}" data-title="${title}" ${isChecked ? "checked" : ""} />
           <span class="course-content">
             <span class="course-main">${label}</span>
             <span class="course-meta-row">
@@ -238,6 +238,37 @@ function renderCourses(courses) {
   syncSelectionState();
 }
 
+function applyPersistedSelections() {
+  getAllCourseCheckboxes().forEach((input) => {
+    const id = String(input.value || "").trim();
+    input.checked = persistedCourseIds.has(id);
+  });
+  syncSelectionState();
+}
+
+async function loadPersistedSelections(token) {
+  try {
+    const res = await fetch(`${API_BASE}/api/student/courses`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      console.error("Failed to load persisted courses:", data?.message || res.statusText);
+      persistedCourseIds = new Set();
+      return;
+    }
+
+    const ids = Array.isArray(data?.courseIds)
+      ? data.courseIds.map((id) => String(id).trim()).filter(Boolean)
+      : [];
+    persistedCourseIds = new Set(ids);
+  } catch (err) {
+    console.error("Failed to load persisted courses:", err);
+    persistedCourseIds = new Set();
+  }
+}
+
 async function searchManualCourses(query, token) {
   const statusEl = document.getElementById("searchStatus");
   const list = document.getElementById("manualCoursesList");
@@ -284,6 +315,7 @@ async function searchManualCourses(query, token) {
     statusEl.textContent = `Found ${items.length} additional course(s).`;
     list.innerHTML = renderCourseItems(items);
     bindSelectionHandlers(list);
+    applyPersistedSelections();
     syncSelectionState();
   } catch (err) {
     console.error(err);
@@ -295,22 +327,10 @@ async function searchManualCourses(query, token) {
 
 async function saveCourses(token) {
   const statusEl = document.getElementById("saveStatus");
-  const selected = Array.from(
-    new Set(
-      getAllCourseCheckboxes()
-        .filter((input) => input.checked)
-        .map((input) => String(input.value || "").trim().toUpperCase())
-        .filter(Boolean)
-    )
-  );
+  const selected = getSelectedCourseIds();
 
   if (!selected.length) {
     alert("Please select at least one course.");
-    return;
-  }
-
-  if (selected.length > MAX_COURSES) {
-    alert("Maximum 11 courses allowed per semester.");
     return;
   }
 
@@ -323,10 +343,7 @@ async function saveCourses(token) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({
-        courseCodes: selected,
-        semester: studentProfile?.semester
-      })
+      body: JSON.stringify({ courseIds: selected })
     });
 
     const data = await res.json().catch(() => ({}));
@@ -335,8 +352,10 @@ async function saveCourses(token) {
       return;
     }
 
+    persistedCourseIds = new Set(selected);
+
     if (statusEl) statusEl.textContent = "Courses saved.";
-    window.location.href = "/frontend/pages/student-dashboard.html";
+    syncSelectionState();
   } catch (err) {
     console.error(err);
     if (statusEl) statusEl.textContent = "Failed to save courses.";

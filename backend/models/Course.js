@@ -2,6 +2,19 @@ const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema(
   {
+    programId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Program"
+    },
+    code: {
+      type: String,
+      uppercase: true,
+      trim: true
+    },
+    title: {
+      type: String,
+      trim: true
+    },
     course_code: {
       type: String,
       required: true,
@@ -34,6 +47,10 @@ const courseSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    courseType: {
+      type: String,
+      enum: ["C", "E"]
+    },
     type: {
       type: String,
       enum: ["compulsory", "elective"],
@@ -42,5 +59,7 @@ const courseSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+courseSchema.index({ code: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.models.Course || mongoose.model("Course", courseSchema);

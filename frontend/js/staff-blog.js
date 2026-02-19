@@ -1,5 +1,5 @@
 const form = document.getElementById("blogForm");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("staffToken");
 
 form.addEventListener("submit", async e => {
   e.preventDefault();

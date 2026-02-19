@@ -8,7 +8,7 @@ document.getElementById("score").textContent =
 document.getElementById("aiBtn").addEventListener("click", () => {
   window.location.href = "ai-assistant.html";
 });
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("studentToken");
 const attempt = JSON.parse(localStorage.getItem("lastAttempt"));
 
 if (!token || !attempt) {
@@ -63,3 +63,4 @@ if (!token || !attempt) {
 document.getElementById("aiExplainBtn").addEventListener("click", () => {
   window.location.href = "ai-assistant.html";
 });
+

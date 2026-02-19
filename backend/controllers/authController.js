@@ -2,6 +2,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Staff = require("../models/Staff");
+const { generateOtp, normalizeOtp } = require("../utils/staffAuth");
+const { sendMail } = require("../utils/mailer");
 
 
 // =========================
@@ -81,6 +84,156 @@ exports.adminLogin = async (req, res) => {
   } catch (err) {
     console.error("Admin login error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// =========================
+// STAFF LOGIN (STAFF ONLY)
+// =========================
+exports.staffLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const staff = await Staff.findOne({ email: String(email || "").trim().toLowerCase() });
+
+    if (!staff) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const isMatch = await bcrypt.compare(password, staff.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (staff.passwordResetRequired) {
+      return res.json({
+        otpRequired: true,
+        message: "OTP verification required"
+      });
+    }
+
+    const token = jwt.sign(
+      { id: staff._id, role: "staff" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      token,
+      role: "staff",
+      email: staff.email,
+      permissions: staff.permissions
+    });
+  } catch (err) {
+    console.error("Staff login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.staffVerifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const staff = await Staff.findOne({ email: String(email || "").trim().toLowerCase() });
+
+    if (!staff || !staff.otpHash || !staff.otpExpiresAt) {
+      return res.status(400).json({ message: "OTP not available" });
+    }
+
+    if (staff.otpExpiresAt < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    const normalized = normalizeOtp(otp);
+    const isMatch = await bcrypt.compare(normalized, staff.otpHash);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    res.json({ verified: true });
+  } catch (err) {
+    res.status(500).json({ message: "OTP verification failed" });
+  }
+};
+
+exports.staffResetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!newPassword) {
+      return res.status(400).json({ message: "New password is required" });
+    }
+
+    const staff = await Staff.findOne({ email: String(email || "").trim().toLowerCase() });
+    if (!staff || !staff.otpHash || !staff.otpExpiresAt) {
+      return res.status(400).json({ message: "OTP not available" });
+    }
+
+    if (staff.otpExpiresAt < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    const normalized = normalizeOtp(otp);
+    const isMatch = await bcrypt.compare(normalized, staff.otpHash);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    staff.password = await bcrypt.hash(newPassword, 10);
+    staff.passwordResetRequired = false;
+    staff.otpHash = undefined;
+    staff.otpExpiresAt = undefined;
+    staff.otpPurpose = undefined;
+    await staff.save();
+
+    const token = jwt.sign(
+      { id: staff._id, role: "staff" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      message: "Password reset successful",
+      token,
+      role: "staff",
+      email: staff.email,
+      permissions: staff.permissions
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Password reset failed" });
+  }
+};
+
+exports.staffForgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const staff = await Staff.findOne({ email: String(email || "").trim().toLowerCase() });
+
+    if (!staff) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    const otpCode = generateOtp();
+    staff.otpHash = await bcrypt.hash(normalizeOtp(otpCode), 10);
+    staff.otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    staff.otpPurpose = "forgot";
+    staff.passwordResetRequired = true;
+    await staff.save();
+
+    const emailText = [
+      "Your password reset code is: " + otpCode,
+      "This code expires in 15 minutes."
+    ].join("\n");
+
+    await sendMail({
+      to: staff.email,
+      subject: "Staff Password Reset",
+      text: emailText
+    });
+
+    res.json({ message: "OTP sent to staff email" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to process request" });
   }
 };
 

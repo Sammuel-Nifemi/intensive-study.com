@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const adminSettingsSchema = new mongoose.Schema(
   {
-    theme: { type: String, enum: ["light", "dark", "purple"], default: "light" }
+    theme: {
+      type: String,
+      enum: ["emerald", "slate", "royal", "sunset", "mono"],
+      default: "emerald"
+    }
   },
   { timestamps: true }
 );

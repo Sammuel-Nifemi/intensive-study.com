@@ -2,14 +2,14 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const studentGuard = require("../middleware/studentProfileGuard");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 const attemptController = require("../controllers/attemptController");
 
 router.post(
   "/submit",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   attemptController.submitAttempt
 );
 

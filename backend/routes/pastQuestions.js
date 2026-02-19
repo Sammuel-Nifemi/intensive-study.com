@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const studentGuard = require("../middleware/studentProfileGuard");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 const {
   getPastQuestionsByCourse
 } = require("../controllers/pastQuestionController");
 
 router.get(
   "/:courseCode",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   getPastQuestionsByCourse
 );
 

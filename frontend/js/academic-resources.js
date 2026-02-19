@@ -21,8 +21,7 @@ signInForm.addEventListener("submit", function (e) {
   }
 
   // 1️⃣ Create session token (temporary)
-  localStorage.setItem("token", "student-session-active");
-  localStorage.setItem("role", "student");
+  localStorage.setItem("studentToken", "student-session-active");
 
   // 2️⃣ Save basic identity (non-destructive)
   localStorage.setItem(

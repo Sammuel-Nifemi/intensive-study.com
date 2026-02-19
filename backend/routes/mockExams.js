@@ -1,14 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const studentOnly = require("../middleware/studentOnly");
+const authStudent = require("../middleware/authStudent");
 const {
   getMockExam,
   submitMockExam
 } = require("../controllers/mockExam.controller");
 
-router.get("/:course", auth, studentOnly, getMockExam);
-router.post("/submit", auth, studentOnly, submitMockExam);
+router.get("/:course", authStudent, getMockExam);
+router.post(
+  "/submit",
+  authStudent,
+  submitMockExam
+);
 
 module.exports = router;

@@ -2,23 +2,29 @@ const express = require("express");
 const router = express.Router();
 
 const Program = require("../models/Program");
-require("../models/Faculty"); // important for populate
 const StudyCenter = require("../models/StudyCenter");
-const auth = require("../middleware/auth");
-const adminOnly = require("../middleware/adminOnly");
+const authAdmin = require("../middleware/authAdmin");
 
 // CREATE PROGRAM
-router.post("/programs", auth, adminOnly, async (req, res) => {
+router.post("/programs", authAdmin, async (req, res) => {
   try {
-    const { name, faculty } = req.body;
+    const { name, facultyId } = req.body;
+    if (!name || !facultyId) {
+      return res.status(400).json({ message: "Program name and faculty are required" });
+    }
 
-    if (!name || !faculty) {
-      return res.status(400).json({ message: "Name and faculty required" });
+    const existing = await Program.findOne({
+      facultyId,
+      name: new RegExp(`^${String(name).trim()}$`, "i")
+    });
+    if (existing) {
+      return res.status(409).json({ message: "Program already exists for this faculty" });
     }
 
     const program = await Program.create({
-      name,
-      faculty
+      name: String(name).trim(),
+      facultyId,
+      faculty: facultyId
     });
 
     res.json(program);
@@ -29,10 +35,21 @@ router.post("/programs", auth, adminOnly, async (req, res) => {
 });
 
 // GET PROGRAMS
-router.get("/programs", auth, adminOnly, async (req, res) => {
+router.get("/programs", authAdmin, async (req, res) => {
   try {
-    const programs = await Program.find().populate("faculty");
-    res.json(programs);
+    const programs = await Program.find()
+      .populate("facultyId", "name")
+      .lean();
+    const formatted = programs.map((p) => ({
+      _id: p._id,
+      name: p.name,
+      facultyId: p.facultyId?._id || p.facultyId || null,
+      facultyName: p.facultyId?.name || "",
+      faculty: p.facultyId
+        ? { _id: p.facultyId?._id || p.facultyId, name: p.facultyId?.name || "" }
+        : null
+    }));
+    res.json(formatted);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -43,7 +60,7 @@ router.get("/programs", auth, adminOnly, async (req, res) => {
 // ======================
 // GET ALL STUDY CENTERS
 // ======================
-router.get("/study-centers", auth, adminOnly, async (req, res) => {
+router.get("/study-centers", authAdmin, async (req, res) => {
   try {
     const centers = await StudyCenter.find().sort({ createdAt: -1 });
     res.json(centers);
@@ -55,13 +72,24 @@ router.get("/study-centers", auth, adminOnly, async (req, res) => {
 // ======================
 // CREATE STUDY CENTER
 // ======================
-router.post("/study-centers", auth, adminOnly, async (req, res) => {
+router.post("/study-centers", authAdmin, async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, city } = req.body;
+    if (!name || !city) {
+      return res.status(400).json({ message: "Center name and city are required" });
+    }
 
-    if (!name) return res.status(400).json({ message: "Name required" });
+    const existing = await StudyCenter.findOne({
+      name: new RegExp(`^${String(name).trim()}$`, "i")
+    });
+    if (existing) {
+      return res.status(409).json({ message: "Study center already exists" });
+    }
 
-    const center = await StudyCenter.create({ name });
+    const center = await StudyCenter.create({
+      name: String(name).trim(),
+      city: String(city).trim()
+    });
 
     res.json(center);
   } catch (err) {
@@ -73,7 +101,7 @@ router.post("/study-centers", auth, adminOnly, async (req, res) => {
 // ======================
 // DELETE STUDY CENTER
 // ======================
-router.delete("/study-centers/:id", auth, adminOnly, async (req, res) => {
+router.delete("/study-centers/:id", authAdmin, async (req, res) => {
   await StudyCenter.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
@@ -81,7 +109,7 @@ router.delete("/study-centers/:id", auth, adminOnly, async (req, res) => {
 
 
 // DELETE PROGRAM
-router.delete("/programs/:id", auth, adminOnly, async (req, res) => {
+router.delete("/programs/:id", authAdmin, async (req, res) => {
   await Program.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });

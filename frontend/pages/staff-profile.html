@@ -4,100 +4,117 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Staff Profile | Intensive Study Academy</title>
-
-  <!-- SHARED DASHBOARD STYLES -->
+  <!-- Profile = identity only (required). -->
   <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/admin-theme.css" />
 </head>
-<body class="page-staff-profile">
-
-  <!-- ================= HEADER ================= -->
+<body>
   <header class="dashboard-header">
     <div class="header-container">
       <div class="logo">
         <img src="../image/isa.png" alt="Intensive Study Academy Logo">
       </div>
-
-      <div class="user-info">
-        <span class="welcome">Staff Profile</span>
-        <span class="matric">Academic Staff</span>
+      <div class="user-text">
+        <strong>Staff Profile</strong>
       </div>
     </div>
   </header>
 
-  <!-- ================= LAYOUT ================= -->
-  <div class="dashboard-layout">
+  <main class="dashboard-main" style="max-width:800px;margin:0 auto;">
+    <a class="back-link" href="/frontend/pages/staff-dashboard.html"><- Back to Dashboard</a>
+    <section class="page-header">
+      <h1>Staff Profile</h1>
+      <p>Edit your identity details.</p>
+    </section>
 
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="dashboard-sidebar">
-      <nav>
-        <ul>
-          <li><a href="staff-dashboard.html">Dashboard</a></li>
-          <li><a href="academic-hub.html">Upload Centre</a></li>
-          <li><a href="staff-profile.html" class="active">Profile</a></li>
-          <li><a href="staff-ai-assistant.html">AI-Assistant</a></li>
-          <li><a href="logout.html">Logout</a></li>
-        </ul>
-      </nav>
-    </aside>
-
-    <!-- ================= MAIN ================= -->
-    <main class="dashboard-main">
-
-      <!-- PAGE HEADER -->
-      <section class="page-header">
-        <h1>Staff Profile</h1>
-        <p>Your official staff information and responsibilities.</p>
-      </section>
-
-      <!-- PROFILE CARD -->
-      <section class="dashboard-section">
-        <div class="profile-card">
-
-          <div class="profile-row">
-            <strong>Full Name</strong>
-            <span>Dr. John Adewale</span>
-          </div>
-
-          <div class="profile-row">
-            <strong>Staff ID</strong>
-            <span>ISA-STF-1023</span>
-          </div>
-
-          <div class="profile-row">
-            <strong>Email Address</strong>
-            <span>john.adewale@intensivestudyacademy.edu</span>
-          </div>
-
-          <div class="profile-row">
-            <strong>Role</strong>
-            <span>Academic Staff</span>
-          </div>
-
-          <div class="profile-row">
-            <strong>Department</strong>
-            <span>General Studies</span>
-          </div>
-
-          <div class="profile-row">
-            <strong>Upload Privileges</strong>
-            <span>
-              Academic Materials, Blog Content, Gallery, Announcements
-            </span>
-          </div>
-
+    <section class="dashboard-section">
+      <form id="staffProfileForm" class="admin-form">
+        <div>
+          <label>Full Name</label>
+          <input type="text" id="fullName" required />
         </div>
-      </section>
+        <div>
+          <label>Title</label>
+          <select id="title" required>
+            <option value="">Select</option>
+            <option value="Mr">Mr</option>
+            <option value="Miss">Miss</option>
+            <option value="Mrs">Mrs</option>
+            <option value="Dr">Dr</option>
+          </select>
+        </div>
+        <div>
+          <label>Role</label>
+          <input type="text" id="role" placeholder="e.g. Content Operator" required />
+        </div>
+        <div>
+          <label>Birthday</label>
+          <div class="hint-text">Day & Month only</div>
+          <div class="dob-row">
+            <select id="dobDay" required>
+              <option value="">Day</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+              <option>11</option>
+              <option>12</option>
+              <option>13</option>
+              <option>14</option>
+              <option>15</option>
+              <option>16</option>
+              <option>17</option>
+              <option>18</option>
+              <option>19</option>
+              <option>20</option>
+              <option>21</option>
+              <option>22</option>
+              <option>23</option>
+              <option>24</option>
+              <option>25</option>
+              <option>26</option>
+              <option>27</option>
+              <option>28</option>
+              <option>29</option>
+              <option>30</option>
+              <option>31</option>
+            </select>
+            <select id="dobMonth" required>
+              <option value="">Month</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Avatar Upload</label>
+          <input type="file" id="avatarFile" accept="image/*" />
+          <input type="hidden" id="avatarUrl" />
+        </div>
+      </form>
+      <div class="admin-actions">
+        <button type="submit" form="staffProfileForm" class="primary-btn">Save Profile</button>
+        <span id="profileStatus" class="status-text"></span>
+      </div>
+    </section>
+  </main>
 
-      <!-- NOTE -->
-      <section class="dashboard-section">
-        <small>
-          Profile details are managed by the system administrator.
-          If any information is incorrect, please contact admin support.
-        </small>
-      </section>
-
-    </main>
-  </div>
-
+  <script src="../js/staff-profile.js"></script>
 </body>
 </html>

@@ -3,13 +3,7 @@ exports.unlockSemesterAccess = async (req, res) => {
   try {
     const user = req.user;
 
-    user.student.semesterAccess = {
-      isActive: true,
-      semesterId: user.student.semester,
-      expiresAt: new Date(
-        new Date().setMonth(new Date().getMonth() + 4)
-      ) // ~1 semester
-    };
+    user.student.semesterPaid = true;
 
     await user.save();
 

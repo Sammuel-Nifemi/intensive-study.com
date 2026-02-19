@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("studentToken");
 
   if (token) {
     // User is logged in → unlock everything
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 item.addEventListener("click", (e) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("studentToken");
 
   if (!token) {
     // window.location.href = "/frontend/pages/student-login.html";
@@ -24,3 +24,5 @@ item.addEventListener("click", (e) => {
     console.log("Open resource:", item.dataset.target);
   }
 });
+
+

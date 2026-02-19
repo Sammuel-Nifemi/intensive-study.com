@@ -32,6 +32,7 @@ if (!student) {
   student = await Student.create({
     user_id: user._id,
     email: user.email,
+    profileComplete: false,
     profile_complete: false
   });
 }
@@ -76,6 +77,7 @@ exports.loginStudent = async (req, res) => {
       existingStudent = await Student.create({
         user_id: user._id,
         email: user.email,
+        profileComplete: false,
         profile_complete: false
       });
     }
@@ -104,7 +106,8 @@ exports.loginStudent = async (req, res) => {
 
    res.json({
       token,
-      onboardingCompleted: existingStudent?.profile_complete || false
+      onboardingCompleted:
+        existingStudent?.profileComplete || existingStudent?.profile_complete || false
     });
   } catch (err) {
     console.error("Student login error:", err);

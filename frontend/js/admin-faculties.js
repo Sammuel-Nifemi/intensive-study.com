@@ -1,5 +1,5 @@
 
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("adminToken");
 const list = document.getElementById("facultyList");
 
 async function loadFaculties() {

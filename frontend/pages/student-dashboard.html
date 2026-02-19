@@ -7,6 +7,7 @@
   <title>Student Dashboard | Intensive Study Academy</title>
 
   <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/theme.css" />
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -18,6 +19,13 @@
 <!-- ================= AUTH / PAGE GUARD PLACEHOLDER ================= -->
 <div id="pageGuard" hidden></div>
 
+<!-- ================= LOADER ================= -->
+<div id="dashboardLoader" class="dashboard-loader" role="status" aria-live="polite" style="display:none;">
+  <div class="loader-spinner" aria-hidden="true"></div>
+  <p>Loading your dashboardâ€¦</p>
+</div>
+
+<div id="dashboardApp">
 <!-- ================= HEADER ================= -->
 <header class="dashboard-header">
   <div class="header-container">
@@ -26,11 +34,15 @@
     </div>
 
     <div class="user-text">
-      <span class="welcome-text">
-        Welcome, <span id="studentName">Loading...</span>
-
-      </span>
+      <span class="welcome-text" id="studentName">Loading...</span>
       
+    </div>
+    <div class="notification-wrapper">
+      <button id="notificationBell" class="notification-bell" type="button" aria-label="Notifications">
+        <span class="bell-icon">🔔</span>
+        <span id="notificationBadge" class="notification-badge" hidden>0</span>
+      </button>
+      <div id="notificationDropdown" class="notification-dropdown" hidden></div>
     </div>
   </div>
 </header>
@@ -44,12 +56,14 @@
       <li><a href="/frontend/pages/student-dashboard.html" class="active">Dashboard</a></li>
       <li><a href="/frontend/pages/course-materials.html">Course Materials</a></li>
       <li><a href="/frontend/pages/mock-exams.html">Mock Exams</a></li>
+      <li><a id="feeAnalyzerLink" href="/frontend/pages/fees.html">Fee Analyzer</a></li>
       <li><a href="/frontend/pages/exam-timetable.html">Exam Timetable</a></li>
       <li><a href="/frontend/pages/past-questions.html">Past Questions</a></li>
       <li><a href="live-classes.html">Live Classes</a></li>
       <li class="divider"></li>
       <li><a href="/frontend/pages/ai-assistant.html">AI Assistant</a></li>
       <li><a href="/frontend/pages/student-profile.html">Profile</a></li>
+      <li><a href="/frontend/pages/student-settings.html">Settings</a></li>
     </ul>
 
     <div class="sidebar-bottom">
@@ -67,7 +81,19 @@
       <h1>Dashboard</h1>
       <p>Your academic overview</p>
     </section>
-    <section class="dashboard-section" id="profileSummary">
+    <section class="dashboard-section directive-card">
+      <h2>Course Registration Status</h2>
+      <p>Have you registered your courses on the NOUN portal yet?</p>
+      <div class="directive-actions">
+        <a class="primary-btn" href="/frontend/pages/select-courses.html">Select My Courses</a>
+        <a class="secondary-btn" href="/frontend/pages/fees.html">Use Fee Analyzer (Guide)</a>
+      </div>
+      <div class="directive-hints">
+        <p><strong>Select My Courses:</strong> Choose your registered courses to unlock materials and mocks.</p>
+        <p><strong>Use Fee Analyzer:</strong> Preview expected courses and fees for your semester.</p>
+      </div>
+    </section>
+<section class="dashboard-section" id="profileSummary">
   <h2>Profile Summary</h2>
 
   <ul class="activity-list">
@@ -78,12 +104,80 @@
     <li><strong>Phone:</strong> <span id="profilePhone">—</span></li>
  </ul>
 
-  <h3>Compulsory Courses</h3>
-<ul id="compulsoryCourses"></ul>
+  
+</section><section class="dashboard-section" id="academicTabs">
+      <h2>Academic Resources</h2>
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="materials">Materials</button>
+        <button class="tab-btn" data-tab="mocks">Mock Exams</button>
+        <button class="tab-btn" data-tab="past-questions">Past Questions</button>
+        <button class="tab-btn" data-tab="summaries">Summaries</button>
+        <button class="tab-btn" data-tab="fees">Fees</button>
+      </div>
 
-<h3>Elective Courses</h3>
-<ul id="electiveCourses"></ul>
-</section>
+      <div class="tab-panel active" data-panel="materials">
+        <p class="status-text">Use the sidebar to open Course Materials.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="mocks">
+        <p class="status-text">Use the sidebar to open Mock Exams.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="past-questions">
+        <p class="status-text">Use the sidebar to open Past Questions.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="summaries">
+        <p class="status-text">Use the sidebar to open Summaries.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="fees">
+        <p id="feeStatus">Loading fee breakdown...</p>
+        <ul class="activity-list">
+          <li><strong>Faculty:</strong> <span id="feeFaculty">—</span></li>
+          <li><strong>Program:</strong> <span id="feeProgram">—</span></li>
+          <li><strong>Level:</strong> <span id="feeLevel">—</span></li>
+          <li><strong>Amount:</strong> <span id="feeAmount">—</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="dashboard-section" id="availableMocksSection" hidden>
+      <h2>My Available Mocks</h2>
+      <div id="availableMocks" class="dashboard-cards"></div>
+    </section>
+
+    <section class="dashboard-section" id="mockExamArea" style="display:none;">
+      <h2>Mock Exam</h2>
+      <div class="mock-meta">
+        <strong id="mockTitle">—</strong>
+        <span id="mockTimer">00:00</span>
+      </div>
+      <div class="mock-layout">
+        <div id="mockNav" class="mock-nav"></div>
+        <div id="mockQuestions" class="mock-questions"></div>
+      </div>
+      <div class="admin-actions">
+        <button id="mockSubmitBtn" class="primary-btn" type="button">Submit Mock</button>
+        <span id="mockSubmitStatus" class="status-text"></span>
+      </div>
+      <div id="mockResult" class="dashboard-section" style="display:none;"></div>
+    </section>
+
+    <div id="assignmentModal" class="modal-overlay" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle">
+        <h3 id="assignmentModalTitle">Assignment Recommendation</h3>
+        <p>
+          Based on your performance, we’ve prepared a short assignment to help strengthen your understanding.
+        </p>
+        <div id="assignmentModalStatus" class="modal-status" role="status" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button id="assignmentAcceptBtn" class="primary-btn" type="button">Accept Assignment</button>
+          <button id="assignmentDeclineBtn" class="secondary-btn" type="button">Decline Assignment</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= PROGRAM DISCOVERY ================= -->
     <section class="dashboard-section" id="programDiscovery" hidden>
       <h2>Program Setup</h2>
@@ -220,16 +314,38 @@
     <p>Loading posts…</p>
   </div>
 </section>
+    <section class="dashboard-section">
+      <h3>Announcements</h3>
+      <ul id="announcementList" class="data-list">
+        <li>Loading announcements…</li>
+      </ul>
+    </section>
 
+    <section class="dashboard-section" id="adminReviewSection">
+      <h3>Request Admin Review</h3>
+      <p>Share feedback or request support from the admin team.</p>
+      <button id="openReviewModalBtn" class="primary-btn" type="button">Request Admin Review</button>
+    </section>
   </main>
 </div>
-<section class="dashboard-section">
-  <h3>Announcements</h3>
-  <ul id="announcementList" class="data-list">
-    <li>Loading announcements…</li>
-  </ul>
-</section>
-<!-- 🎉 Birthday Prompt Card -->
+
+<div id="reviewModal" class="modal-overlay" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+    <h3 id="reviewModalTitle">Request Admin Review</h3>
+    <textarea
+      id="reviewMessageInput"
+      rows="5"
+      style="width:100%;padding:10px;border-radius:8px;border:1px solid #d0d7de;"
+      placeholder="Write your feedback or request..."
+    ></textarea>
+    <div id="reviewStatus" class="modal-status" role="status" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button id="submitReviewBtn" class="primary-btn" type="button">Submit</button>
+      <button id="closeReviewModalBtn" class="secondary-btn" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="birthdayPrompt" class="birthday-card hidden">
   <div class="birthday-card-content">
     <h3>🎉 We’d love to celebrate with you!</h3>
@@ -266,10 +382,24 @@
 <!-- ================= FEEDBACK / TOAST ================= -->
 <div id="toast" class="toast" hidden></div>
 
+</div>
 
 <!-- ================= SCRIPTS ================= -->
  <script src="/frontend/js/student-auth-guard.js"></script>
+<script src="../js/notifications.js"></script>
 <script src="../js/student-dashboard.js"></script>
 <script src="../js/public-blog.js"></script>
+  <script src="../js/theme.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+

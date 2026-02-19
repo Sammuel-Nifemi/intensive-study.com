@@ -1,5 +1,9 @@
 function applyTheme() {
-  const theme = localStorage.getItem("theme") || "classic";
+  const storedTheme = localStorage.getItem("theme");
+  const theme = !storedTheme || storedTheme === "classic" ? "academy" : storedTheme;
+  if (!storedTheme || storedTheme === "classic") {
+    localStorage.setItem("theme", theme);
+  }
   document.body.setAttribute("data-theme", theme);
 }
 

@@ -2,11 +2,10 @@
    ROLE GUARD
 ===================================================== */
 
-const role = localStorage.getItem("role");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("adminToken");
+window.NOTIFICATION_TOKEN = token;
 
-if (!token || (role !== "staff" && role !== "admin")) {
-  window.location.href = "staff-login.html";
+if (!token) {
+  window.location.href = "/frontend/pages/admin-login.html";
 }
-;
  

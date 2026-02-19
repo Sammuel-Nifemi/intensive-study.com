@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const adminOnly = require("../middleware/adminOnly");
+const authAdmin = require("../middleware/authAdmin");
+const authRoles = require("../middleware/authRoles");
 const upload = require("../utils/upload");
 
 const Material = require("../models/Material");
@@ -17,19 +17,22 @@ function normalizePath(p) {
 /* =========================
    MATERIALS (ADMIN)
 ========================= */
-router.post("/materials", auth, upload.single("file"), async (req, res) => {
+router.post("/materials", authRoles(["admin", "staff"]), upload.single("file"), async (req, res) => {
   try {
     if (!req.user || (req.user.role !== "admin" && req.user.role !== "staff")) {
       return res.status(403).json({ message: "Admin or staff only" });
     }
     if (!req.file) return res.status(400).json({ message: "File upload failed" });
 
-    const { title, courseCode } = req.body;
+    const { title, description, courseCode } = req.body;
+    if (!title || !description) {
+      return res.status(400).json({ message: "Title and description are required" });
+    }
 
     const material = await Material.create({
-      title: title || req.file.originalname,
-      courseCode,
-      resourceType: "course-material",
+      title: title.trim(),
+      description: description.trim(),
+      courseCode: String(courseCode || "").trim().toUpperCase(),
       filePath: req.file.path,
       fileUrl: normalizePath(req.file.path),
       status: "approved",
@@ -45,7 +48,7 @@ router.post("/materials", auth, upload.single("file"), async (req, res) => {
   }
 });
 
-router.get("/materials", auth, adminOnly, async (req, res) => {
+router.get("/materials", authAdmin, async (req, res) => {
   try {
     const materials = await Material.find().populate("createdBy", "fullName email");
     res.json(materials);
@@ -54,12 +57,16 @@ router.get("/materials", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.put("/materials/:id", auth, adminOnly, async (req, res) => {
+router.put("/materials/:id", authAdmin, async (req, res) => {
   try {
-    const { title, courseCode } = req.body;
+    const { title, description, courseCode } = req.body;
     const material = await Material.findByIdAndUpdate(
       req.params.id,
-      { title, courseCode },
+      {
+        title,
+        description,
+        courseCode: String(courseCode || "").trim().toUpperCase()
+      },
       { new: true }
     );
     res.json(material);
@@ -68,7 +75,7 @@ router.put("/materials/:id", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.delete("/materials/:id", auth, adminOnly, async (req, res) => {
+router.delete("/materials/:id", authAdmin, async (req, res) => {
   try {
     await Material.findByIdAndDelete(req.params.id);
     res.json({ message: "Material deleted" });
@@ -80,7 +87,7 @@ router.delete("/materials/:id", auth, adminOnly, async (req, res) => {
 /* =========================
    ANNOUNCEMENTS (ADMIN)
 ========================= */
-router.post("/announcements", auth, async (req, res) => {
+router.post("/announcements", authRoles(["admin", "staff"]), async (req, res) => {
   try {
     if (!req.user || (req.user.role !== "admin" && req.user.role !== "staff")) {
       return res.status(403).json({ message: "Admin or staff only" });
@@ -105,7 +112,7 @@ router.post("/announcements", auth, async (req, res) => {
   }
 });
 
-router.get("/announcements", auth, adminOnly, async (req, res) => {
+router.get("/announcements", authAdmin, async (req, res) => {
   try {
     const items = await Announcement.find().populate("createdBy", "fullName email");
     res.json(items);
@@ -114,7 +121,7 @@ router.get("/announcements", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.put("/announcements/:id", auth, adminOnly, async (req, res) => {
+router.put("/announcements/:id", authAdmin, async (req, res) => {
   try {
     const { title, message, target } = req.body;
     const item = await Announcement.findByIdAndUpdate(
@@ -128,7 +135,7 @@ router.put("/announcements/:id", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.delete("/announcements/:id", auth, adminOnly, async (req, res) => {
+router.delete("/announcements/:id", authAdmin, async (req, res) => {
   try {
     await Announcement.findByIdAndDelete(req.params.id);
     res.json({ message: "Announcement deleted" });
@@ -140,7 +147,7 @@ router.delete("/announcements/:id", auth, adminOnly, async (req, res) => {
 /* =========================
    BLOG (ADMIN)
 ========================= */
-router.post("/blog", auth, upload.single("coverImage"), async (req, res) => {
+router.post("/blog", authRoles(["admin", "staff"]), upload.single("coverImage"), async (req, res) => {
   try {
     if (!req.user || (req.user.role !== "admin" && req.user.role !== "staff")) {
       return res.status(403).json({ message: "Admin or staff only" });
@@ -168,7 +175,7 @@ router.post("/blog", auth, upload.single("coverImage"), async (req, res) => {
   }
 });
 
-router.get("/blog", auth, adminOnly, async (req, res) => {
+router.get("/blog", authAdmin, async (req, res) => {
   try {
     const posts = await BlogPost.find().populate("createdBy", "fullName email");
     res.json(posts);
@@ -177,7 +184,7 @@ router.get("/blog", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.put("/blog/:id", auth, adminOnly, async (req, res) => {
+router.put("/blog/:id", authAdmin, async (req, res) => {
   try {
     const { title, content } = req.body;
     const post = await BlogPost.findByIdAndUpdate(
@@ -191,7 +198,7 @@ router.put("/blog/:id", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.delete("/blog/:id", auth, adminOnly, async (req, res) => {
+router.delete("/blog/:id", authAdmin, async (req, res) => {
   try {
     await BlogPost.findByIdAndDelete(req.params.id);
     res.json({ message: "Blog post deleted" });
@@ -203,7 +210,7 @@ router.delete("/blog/:id", auth, adminOnly, async (req, res) => {
 /* =========================
    GALLERY (ADMIN)
 ========================= */
-router.post("/gallery", auth, upload.single("image"), async (req, res) => {
+router.post("/gallery", authRoles(["admin", "staff"]), upload.single("image"), async (req, res) => {
   try {
     if (!req.user || (req.user.role !== "admin" && req.user.role !== "staff")) {
       return res.status(403).json({ message: "Admin or staff only" });
@@ -227,7 +234,7 @@ router.post("/gallery", auth, upload.single("image"), async (req, res) => {
   }
 });
 
-router.get("/gallery", auth, adminOnly, async (req, res) => {
+router.get("/gallery", authAdmin, async (req, res) => {
   try {
     const items = await GalleryItem.find().populate("createdBy", "fullName email");
     res.json(items);
@@ -236,7 +243,7 @@ router.get("/gallery", auth, adminOnly, async (req, res) => {
   }
 });
 
-router.delete("/gallery/:id", auth, adminOnly, async (req, res) => {
+router.delete("/gallery/:id", authAdmin, async (req, res) => {
   try {
     await GalleryItem.findByIdAndDelete(req.params.id);
     res.json({ message: "Gallery item deleted" });

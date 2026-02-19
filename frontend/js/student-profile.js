@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem("token");
-
+  const token = localStorage.getItem("studentToken");
   if (!token) {
     window.location.href = "/frontend/pages/student-login.html";
     return;
@@ -9,214 +8,55 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyTheme();
 
   try {
-    const res = await fetch("http://localhost:5000/api/students/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const cached = window.readStudentCache ? window.readStudentCache() : null;
+    if (cached) {
+      renderProfile(cached);
+      if (window.hydrateStudentHeader) window.hydrateStudentHeader(cached);
+    }
+
+    const profile = window.loadStudent ? await window.loadStudent({ force: !cached }) : null;
+    if (!profile) {
+      if (!cached) {
+        window.location.href = "/frontend/pages/student-login.html";
       }
-    });
+      return;
+    }
 
-    if (!res.ok) throw new Error("Failed to load student");
-
-    const student = await res.json();
-
-    set("studentName", student.fullName);
-    set("gender", student.gender);
-    set("phone", student.phone);
-
+    renderProfile(profile);
+    if (window.hydrateStudentHeader) window.hydrateStudentHeader(profile);
   } catch (err) {
     console.error("Profile load error:", err);
+  }
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    localStorage.removeItem("studentToken");
+    localStorage.removeItem("studentProfileCache");
+    localStorage.removeItem("studentProfileCacheToken");
     window.location.href = "/frontend/pages/student-login.html";
-  }
-
-  const profileForm = document.getElementById("studentProfileForm");
-  if (profileForm) {
-    profileForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const payload = {
-        gender: getValue("gender"),
-        phone: getValue("phone")
-      };
-
-      try {
-        const updateRes = await fetch("http://localhost:5000/api/students/me", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await updateRes.json();
-
-        if (!updateRes.ok) {
-          alert(data.message || "Failed to update profile");
-          return;
-        }
-
-        const updated = data.student || {};
-        set("gender", updated.gender);
-        set("phone", updated.phone);
-
-        alert("Profile updated successfully");
-      } catch (err) {
-        console.error("Profile update error:", err);
-        alert("Server error. Please try again.");
-      }
-    });
-  }
-
-  const academicForm = document.getElementById("academicChangeForm");
-  if (academicForm) {
-    academicForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const payload = {
-        requestedProgram: getValue("requestedProgram"),
-        requestedStudyCenter: getValue("requestedStudyCenter"),
-        reason: getValue("changeReason")
-      };
-
-      if (!payload.requestedProgram && !payload.requestedStudyCenter) {
-        alert("Please enter a requested program or study center");
-        return;
-      }
-
-      try {
-        const res = await fetch("http://localhost:5000/api/students/me/academic-change-request", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Failed to submit request");
-          return;
-        }
-
-        academicForm.reset();
-        alert("Academic change request submitted");
-      } catch (err) {
-        console.error("Academic change request error:", err);
-        alert("Server error. Please try again.");
-      }
-    });
-  }
-
-  const complaintForm = document.getElementById("complaintForm");
-  if (complaintForm) {
-    complaintForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const payload = {
-        subject: getValue("complaintSubject"),
-        message: getValue("complaintMessage")
-      };
-
-      if (!payload.subject || !payload.message) {
-        alert("Please enter a subject and message");
-        return;
-      }
-
-      try {
-        const res = await fetch("http://localhost:5000/api/students/me/complaints", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Failed to submit complaint");
-          return;
-        }
-
-        complaintForm.reset();
-        alert("Complaint submitted");
-      } catch (err) {
-        console.error("Complaint error:", err);
-        alert("Server error. Please try again.");
-      }
-    });
-  }
-
-  const themeSelect = document.getElementById("themeSelect");
-  if (themeSelect) {
-    const storedTheme = localStorage.getItem("theme") || "classic";
-    themeSelect.value = storedTheme;
-
-    themeSelect.addEventListener("change", () => {
-      localStorage.setItem("theme", themeSelect.value);
-      applyTheme();
-    });
-  }
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/frontend/pages/student-login.html";
-  };
-
-  document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    logout();
-  });
-
-  document.getElementById("logoutBtnInline")?.addEventListener("click", logout);
-
-  document.getElementById("deleteAccountBtn")?.addEventListener("click", async () => {
-    const confirmDelete = confirm("Delete your account? This cannot be undone.");
-    if (!confirmDelete) return;
-
-    try {
-      const res = await fetch("http://localhost:5000/api/students/me", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Failed to delete account");
-        return;
-      }
-
-      localStorage.removeItem("token");
-      window.location.href = "/frontend/pages/student-login.html";
-    } catch (err) {
-      console.error("Delete account error:", err);
-      alert("Server error. Please try again.");
-    }
   });
 });
-
-function set(id, value) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") {
-    el.value = value || "";
-    return;
-  }
-  el.textContent = value || "—";
-}
-
-function getValue(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : "";
-}
 
 function applyTheme() {
   const theme = localStorage.getItem("theme") || "classic";
   document.body.setAttribute("data-theme", theme);
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value ?? "—";
+}
+
+function renderProfile(profile) {
+  setText("profileName", profile?.fullName || profile?.name);
+  setText("profileTitle", profile?.title);
+  setText("profilePhone", profile?.phone || profile?.phoneNumber);
+
+  setText(
+    "profileStudyCenter",
+    profile?.studyCenter || profile?.studyCenterName || profile?.center
+  );
+  setText("profileFaculty", profile?.faculty || profile?.facultyName);
+  setText("profileProgram", profile?.program || profile?.programName);
+  setText("profileLevel", profile?.level);
+  setText("profileSemester", profile?.semester);
 }

@@ -4,7 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!logoutBtn) return;
 
   logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("studentToken");
     localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
     localStorage.removeItem("user");
 
     // Redirect to Academic Resource Center (main gate)

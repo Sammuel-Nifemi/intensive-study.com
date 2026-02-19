@@ -1,119 +1,122 @@
-const token = localStorage.getItem("token");
+const API_BASE = "http://localhost:5000";
+const MATERIAL_CONTEXT_KEY = "aiAssistantMaterialContext";
+const searchInput = document.getElementById("materialsSearch");
+const resultsContainer = document.getElementById("materialsResults");
 
-if (!token) {
-  window.location.href = "/frontend/pages/student-login.html";
+let searchTimer = null;
+let allMaterials = [];
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
-async function loadStudentProfile() {
-  try {
-    const res = await fetch("http://localhost:5000/api/students/me", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error("Failed to load student");
-
-    const data = await res.json();
-    const student = data.student || data;
-
-    setText("studentNameSummary", student.fullName || "Student");
-    setText("summaryProgram", student.program || "—");
-    setText("summaryFaculty", student.faculty || "—");
-    setText("summaryLevel", student.level || "—");
-    setText("summarySemester", student.semester || "—");
-
-    return student;
-  } catch (err) {
-    console.error("Failed to load student profile:", err);
-    return null;
-  }
+function normalizeFileUrl(fileUrl) {
+  if (!fileUrl) return "#";
+  if (/^https?:\/\//i.test(fileUrl)) return fileUrl;
+  return `${API_BASE}${fileUrl}`;
 }
 
-async function renderCourseList() {
-  const listEl = document.getElementById("courseList");
-  if (!listEl) return;
-
-  const student = await loadStudentProfile();
-  const courses = student?.courses || [];
-
-  if (!courses.length) {
-    listEl.innerHTML = "<p>No courses found. Please complete your academic setup.</p>";
+function renderItems(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    resultsContainer.innerHTML = '<p class="muted">No materials found.</p>';
     return;
   }
 
-  listEl.innerHTML = courses.map(course => {
-    const code = course.code || course.courseCode || "";
-    const title = course.title || course.name || "";
-    return `
-      <div class="course-card">
-        <div class="course-header">
-          <strong>${code}</strong>
-          <div class="meta">${title}</div>
-        </div>
-        <div class="course-actions">
-          <button class="action-btn" data-action="download" data-course="${code}">Download Materials</button>
-          <button class="action-btn" data-action="mock" data-course="${code}">Practice Mock</button>
-        </div>
-      </div>
-    `;
-  }).join("");
+  resultsContainer.innerHTML = items
+    .map((item) => {
+      const title = escapeHtml(item.title || "Untitled");
+      const code = escapeHtml(item.courseCode || "General");
+      const level = escapeHtml(item.level || "N/A");
+      const semester = escapeHtml(item.semester || "N/A");
+      const url = normalizeFileUrl(item.fileUrl);
+      const context = escapeHtml(
+        [
+          `Title: ${item.title || "Untitled"}`,
+          `Course: ${item.courseCode || "General"}`,
+          `Level: ${item.level || "N/A"}`,
+          `Semester: ${item.semester || "N/A"}`,
+          item.description ? `Description: ${item.description}` : "",
+          item.summary ? `Summary: ${item.summary}` : ""
+        ]
+          .filter(Boolean)
+          .join("\n")
+      );
+      return `
+        <article class="material-accordion-card">
+          <button class="material-accordion-trigger" type="button">
+            <span>${title}</span>
+            <span class="material-accordion-meta">Course: ${code}</span>
+          </button>
+          <div class="material-accordion-body">
+            <p class="result-meta">Level: ${level}</p>
+            <p class="result-meta">Semester: ${semester}</p>
+            <div class="result-actions">
+              <a class="download-btn" href="${url}" target="_blank" rel="noopener">Download PDF</a>
+              <button class="ai-explain-btn" type="button" data-context="${context}">Ask NOVA</button>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
 
-  listEl.querySelectorAll("button[data-course]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const course = btn.getAttribute("data-course");
-      if (!course) return;
-      const action = btn.getAttribute("data-action");
-      if (action === "download") {
-        downloadMaterials(course);
-        return;
-      }
-      if (action === "mock") {
-        localStorage.setItem("selectedCourse", course);
-        window.location.href = `/frontend/pages/mock-exams.html?course=${course}`;
-      }
-    });
+function filterMaterials(query = "") {
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) return allMaterials;
+  return allMaterials.filter((item) => {
+    return String(item.title || "").toLowerCase().includes(q) ||
+      String(item.courseCode || "").toLowerCase().includes(q);
   });
 }
 
-async function downloadMaterials(course) {
+async function loadMaterials() {
   try {
-    const res = await fetch(
-      `http://localhost:5000/api/materials?course=${encodeURIComponent(course)}`,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
+    const endpoint = `${API_BASE}/api/materials/public`;
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      alert(data.message || "Failed to download materials");
+    const response = await fetch(endpoint);
+    const data = await response.json();
+
+    if (!response.ok) {
+      resultsContainer.innerHTML = `<p class="muted">${escapeHtml(data.message || "Failed to load materials.")}</p>`;
       return;
     }
 
-    const blob = await res.blob();
-    const cd = res.headers.get("content-disposition") || "";
-    const match = cd.match(/filename="?([^";]+)"?/i);
-    const filename = match ? match[1] : `${course}-materials`;
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Download error:", err);
-    alert("Failed to download materials");
+    allMaterials = Array.isArray(data) ? data : [];
+    renderItems(allMaterials);
+  } catch (error) {
+    console.error(error);
+    resultsContainer.innerHTML = '<p class="muted">Failed to load materials.</p>';
   }
 }
 
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderCourseList();
+searchInput?.addEventListener("input", () => {
+  const query = searchInput.value.trim();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    renderItems(filterMaterials(query));
+  }, 250);
 });
 
+resultsContainer?.addEventListener("click", (event) => {
+  const trigger = event.target.closest(".material-accordion-trigger");
+  if (trigger) {
+    const card = trigger.closest(".material-accordion-card");
+    if (card) card.classList.toggle("open");
+    return;
+  }
 
+  const btn = event.target.closest(".ai-explain-btn");
+  if (!btn) return;
+  const context = String(btn.getAttribute("data-context") || "").trim();
+  if (!context) return;
+  localStorage.setItem(MATERIAL_CONTEXT_KEY, context);
+  window.location.href = "/frontend/pages/ai-assistant.html";
+});
+
+loadMaterials();

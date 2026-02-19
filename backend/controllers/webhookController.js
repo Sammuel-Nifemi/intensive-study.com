@@ -35,13 +35,7 @@ exports.paystackWebhook = async (req, res) => {
     });
 
     // unlock access
-    user.student.semesterAccess = {
-      isActive: true,
-      semesterId: user.student.semester,
-      expiresAt: new Date(
-        new Date().setMonth(new Date().getMonth() + 4)
-      )
-    };
+    user.student.semesterPaid = true;
 
     await user.save();
   }

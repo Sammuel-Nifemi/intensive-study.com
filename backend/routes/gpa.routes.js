@@ -5,11 +5,10 @@ const {
   getGPA,
   getMyResults
 } = require("../controllers/gpa.controller");
-const auth = require("../middleware/auth");
-const studentOnly = require("../middleware/studentOnly");
+const authStudent = require("../middleware/authStudent");
 
-router.get("/gpa", auth, studentOnly, getGPA);
-router.get("/results", auth, studentOnly, getMyResults);
+router.get("/gpa", authStudent, getGPA);
+router.get("/results", authStudent, getMyResults);
 
 
 module.exports = router;

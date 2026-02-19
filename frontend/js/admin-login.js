@@ -1,12 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("adminLoginForm");
   const msg = document.getElementById("msg");
+  const warning = document.getElementById("tokenWarning");
+
+  const studentToken = localStorage.getItem("studentToken");
+  if (studentToken && warning) {
+    warning.textContent =
+      "Student session detected. Please use Student Login or log out first.";
+    warning.style.display = "block";
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
+    const submitBtn = form.querySelector("button[type=\"submit\"]");
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Logging in...";
+    }
 
     msg.textContent = "Logging in...";
 
@@ -35,6 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error(err);
       msg.textContent = "Server error. Try again.";
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Login";
+      }
     }
   });
 });

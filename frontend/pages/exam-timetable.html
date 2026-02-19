@@ -4,107 +4,88 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Exam Timetable | Intensive Study Academy</title>
-
-  <!-- GLOBAL STUDENT DASHBOARD STYLES -->
   <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
 </head>
-<body>
+<body class="page-student-dashboard">
 
-  <!-- ================= HEADER ================= -->
-  <header class="dashboard-header">
+<header class="dashboard-header">
+  <div class="header-container">
     <div class="logo">
       <img src="../image/isa.png" alt="Intensive Study Academy Logo">
     </div>
-
-    <div class="user-info">
-      <span class="welcome-text">
-        Welcome, <strong>Cynthia</strong>
-      </span>
-      <span class="matric">
-        Matric No: NOU/2023/123456
-      </span>
+    <div class="user-text">
+      <span class="welcome-text" id="studentName">Loading...</span>
     </div>
-  </header>
-
-  <!-- ================= LAYOUT ================= -->
-  <div class="dashboard-layout">
-
-    <!-- ===== SIDEBAR ===== -->
-    
-      <nav class="dashboard-sidebar">
-  <ul>
-    <li><a href="student-dashboard.html">Dashboard</a></li>
-    <li><a href="exam-timetable.html">Exam Timetable</a></li>
-    <li><a href="ai-assistant.html">AI Assistant</a></li>
-    <li><a href="student-profile.html">Profile</a></li>
-    <li><a href="logout.html">Logout</a></li>
-  </ul>
-</nav>
-
-    <!-- ================= MAIN CONTENT ================= -->
-    <main class="dashboard-main">
-
-      <!-- PAGE HEADER -->
-      <section class="page-header">
-        <h1>Exam Timetable</h1>
-        <p>Your personalised examination schedule for the current semester.</p>
-
-        <div class="page-meta">
-          <span><strong>Semester:</strong> 2025/2026 — Second Semester</span>
-          <span><strong>Exam Mode:</strong> e-Exam & Pen-on-Paper (POP)</span>
-        </div>
-      </section>
-
-      <!-- EXAM TABLE -->
-      <section class="dashboard-section">
-
-        <h2>Examination Schedule</h2>
-
-        <div class="timetable-wrapper">
-          <table class="exam-timetable">
-            <thead>
-              <tr>
-                <th>Course Code</th>
-                <th>Course Title</th>
-                <th>Exam Date</th>
-                <th>Time</th>
-                <th>Mode</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td>PCR211</td>
-                <td>Introduction to Political Theory</td>
-                <td>12 August 2026</td>
-                <td>9:00 AM – 11:00 AM</td>
-                <td>e-Exam</td>
-              </tr>
-
-              <tr>
-                <td>MAC212</td>
-                <td>Principles of Macroeconomics</td>
-                <td>15 August 2026</td>
-                <td>1:00 PM – 3:00 PM</td>
-                <td>Pen-on-Paper</td>
-              </tr>
-
-              <tr>
-                <td>GST101</td>
-                <td>Use of English</td>
-                <td>18 August 2026</td>
-                <td>10:00 AM – 12:00 PM</td>
-                <td>e-Exam</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </section>
-
-    </main>
+    <div class="notification-wrapper">
+      <button id="notificationBell" class="notification-bell" type="button" aria-label="Notifications">
+        <span class="bell-icon">&#128276;</span>
+        <span id="notificationBadge" class="notification-badge" hidden>0</span>
+      </button>
+      <div id="notificationDropdown" class="notification-dropdown" hidden></div>
+    </div>
   </div>
+</header>
 
+<div class="dashboard-layout">
+  <nav class="dashboard-sidebar" aria-label="Student Navigation">
+    <ul class="sidebar-top">
+      <li><a href="/frontend/pages/student-dashboard.html">Dashboard</a></li>
+      <li><a href="/frontend/pages/course-materials.html">Course Materials</a></li>
+      <li><a href="/frontend/pages/mock-exams.html">Mock Exams</a></li>
+      <li><a href="/frontend/pages/fees.html">Fee Analyzer</a></li>
+      <li><a href="/frontend/pages/exam-timetable.html" class="active">Exam Timetable</a></li>
+      <li><a href="/frontend/pages/past-questions.html">Past Questions</a></li>
+      <li><a href="/frontend/pages/live-classes.html">Live Classes</a></li>
+      <li class="divider"></li>
+      <li><a href="/frontend/pages/ai-assistant.html">AI Assistant</a></li>
+      <li><a href="/frontend/pages/student-profile.html">Profile</a></li>
+      <li><a href="/frontend/pages/student-settings.html">Settings</a></li>
+    </ul>
+
+    <div class="sidebar-bottom">
+      <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+    </div>
+  </nav>
+
+  <main class="dashboard-main">
+    <section class="page-header">
+      <h1>Exam Timetable</h1>
+      <p>Your personalized examination schedule for the current semester.</p>
+    </section>
+
+    <section class="dashboard-section">
+      <h2>Available Timetables</h2>
+      <p id="timetableStatus">Loading timetable files...</p>
+      <div id="timetableList"></div>
+    </section>
+  </main>
+</div>
+
+<script src="/frontend/js/student-auth-guard.js"></script>
+<script src="../js/notifications.js"></script>
+<script src="../js/exam-timetable.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const profile = window.loadStudent ? await window.loadStudent() : null;
+      if (!profile) return;
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+      const name = profile.fullName || profile.name || "Student";
+      const headerName = document.getElementById("studentName");
+      if (headerName) headerName.textContent = `${greeting}, ${name}`;
+    } catch (err) {
+      console.error("Header greeting error:", err);
+    }
+  });
+</script>
+  <script src="../js/theme.js"></script>
 </body>
 </html>
+
 

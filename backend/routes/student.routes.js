@@ -4,13 +4,13 @@ const router = express.Router();
 const { loginStudent } = require("../controllers/studentAuth.controller");
 const { getStudentDashboard } = require("../controllers/studentDashboard.controller");
 
-const auth = require("../middleware/auth");
-const studentOnly = require("../middleware/studentOnly");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 
 // LOGIN
 router.post("/login", loginStudent);
 
 // DASHBOARD
-router.get("/dashboard", auth, studentOnly, getStudentDashboard);
+router.get("/dashboard", authStudent, checkStudentProfileComplete, getStudentDashboard);
 
 module.exports = router;

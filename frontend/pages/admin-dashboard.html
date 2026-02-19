@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard | Intensive Study Academy</title>
   <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/admin-theme.css" />
 </head>
 <body>
 <header class="dashboard-header">
@@ -14,6 +15,14 @@
     </div>
     <div class="user-text">
       <strong>Admin</strong>
+      <a class="action-btn" href="/frontend/pages/admin-settings.html">Settings</a>
+    </div>
+    <div class="notification-wrapper">
+      <button id="notificationBell" class="notification-bell" type="button" aria-label="Notifications">
+        <span class="bell-icon">🔔</span>
+        <span id="notificationBadge" class="notification-badge" hidden>0</span>
+      </button>
+      <div id="notificationDropdown" class="notification-dropdown" hidden></div>
     </div>
   </div>
 </header>
@@ -22,6 +31,16 @@
   <nav class="dashboard-sidebar">
     <ul class="sidebar-top">
       <li><a href="/frontend/pages/admin-dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="/frontend/pages/admin-staff.html">Staff</a></li>
+      <li><a href="/frontend/pages/admin-courses.html">Courses</a></li>
+      <li><a href='/frontend/pages/admin-curriculum.html'>Curriculum</a></li>
+      <li><a href="/frontend/pages/admin-academic-management.html">Academic Management</a></li>
+      <li><a href="/frontend/pages/admin-course-materials.html">Course Materials</a></li>
+      <li><a href="/frontend/pages/admin-assignments.html">Assignments</a></li>
+      <li><a href="/frontend/pages/admin-mocks.html">Mock Exams</a></li>
+      <li><a href="/frontend/pages/admin-exam-timetables.html">Exam Timetables</a></li>
+      <li><a href="/frontend/pages/admin-fee-structures.html">Fee Structures</a></li>
+      <li><a href="/frontend/pages/admin-cbt.html">CBT Exams</a></li>
       <li><a href="/frontend/pages/admin-materials.html">Materials</a></li>
       <li><a href="/frontend/pages/admin-announcements.html">Announcements</a></li>
       <li><a href="/frontend/pages/admin-blog.html">Blog</a></li>
@@ -60,6 +79,16 @@
       <h2>Quick Actions</h2>
       <div class="dashboard-cards">
         <div class="dashboard-card">
+          <h3>Academic Management</h3>
+          <p>Manage study centers, faculties, programs and courses.</p>
+          <a href="/frontend/pages/admin-academic-management.html">Go</a>
+        </div>
+        <div class="dashboard-card">
+          <h3>Assignments</h3>
+          <p>Review mock-based assignment requests.</p>
+          <a href="/frontend/pages/admin-assignments.html">Go</a>
+        </div>
+        <div class="dashboard-card">
           <h3>Materials</h3>
           <p>Upload course materials.</p>
           <a href="/frontend/pages/admin-materials.html">Go</a>
@@ -86,11 +115,20 @@
       <h2>Study Centers</h2>
       <div class="dashboard-cards" id="studyCenterCards"></div>
     </section>
+
+    <section class="dashboard-section">
+      <h2>My Uploaded Mocks</h2>
+      <div class="dashboard-cards" id="adminMockSummary"></div>
+    </section>
   </main>
 </div>
 
 <script src="../js/admin-guard.js"></script>
 <script src="../js/admin-logout.js"></script>
+<script src="../js/admin-theme.js"></script>
+<script src="../js/notifications.js"></script>
 <script src="../js/admin-dashboard.js"></script>
 </body>
 </html>
+
+

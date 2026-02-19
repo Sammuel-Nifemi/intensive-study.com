@@ -1,8 +1,6 @@
 // ===============================
-// STUDENT LOGIN PAGE (ONLY)
+// STUDENT LOGIN PAGE (MAGIC LOGIN)
 // ===============================
-
-
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("studentLoginForm");
@@ -12,38 +10,39 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
 
-    if (!email || !password) {
-      alert("Please enter email and password");
+    if (!email) {
+      alert("Please enter your email");
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/students/login", {
+      const res = await fetch("http://127.0.0.1:5000/auth/quick-login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
+      console.log("LOGIN RESPONSE:", data);
+
+      if (!data.token) {
         alert(data.message || "Login failed");
         return;
       }
 
-      // ✅ ONE TOKEN KEY
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", "student");
+      // ✅ store token
       localStorage.setItem("studentToken", data.token);
 
-      // 🚀 REDIRECT
+      // 🚀 redirect
       window.location.href = "/frontend/pages/student-dashboard.html";
 
     } catch (err) {
       console.error(err);
-      alert("Server error. Please try again.");
+      alert("Network error");
     }
   });
 });

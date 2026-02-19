@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Middlewares
 const upload = require("../middleware/upload");
-const auth = require("../middleware/auth");
+const authRoles = require("../middleware/authRoles");
 
 // Controller
 const {
@@ -19,10 +19,9 @@ const {
 // Upload resource (staff & admin)
 router.post(
   "/upload",
-  auth,                  // ✅ user must be logged in
-  upload.single("file"), // ✅ handle file upload
-  uploadResource         // ✅ business logic
+  authRoles(["admin", "staff"]),
+  upload.single("file"),
+  uploadResource
 );
 
 module.exports = router;
-

@@ -1,4 +1,4 @@
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("adminToken");
 
 async function loadFaculties() {
   const res = await fetch("http://localhost:5000/api/admin/faculties", {

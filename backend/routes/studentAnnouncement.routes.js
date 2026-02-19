@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
+const authStudent = require("../middleware/authStudent");
 const { getStudentAnnouncements } = require("../controllers/studentAnnouncement.controller");
 
 /* =========================
    STUDENT ANNOUNCEMENTS
 ========================= */
 
-router.get("/announcements", auth, getStudentAnnouncements);
+router.get("/announcements", authStudent, getStudentAnnouncements);
 
 module.exports = router;

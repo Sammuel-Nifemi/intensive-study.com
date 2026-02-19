@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Materials | Intensive Study Academy</title>
   <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/admin-theme.css" />
 </head>
 <body>
 <header class="dashboard-header">
@@ -21,8 +22,11 @@
 <div class="dashboard-layout">
   <nav class="dashboard-sidebar">
     <ul class="sidebar-top">
-      <li><a href="/frontend/pages/admin-dashboard.html">Dashboard</a></li>
-      <li><a href="/frontend/pages/admin-materials.html" class="active">Materials</a></li>
+        <li><a href="/frontend/pages/admin-dashboard.html">Dashboard</a></li>
+      <li><a href="/frontend/pages/admin-staff.html">Staff</a></li>
+        <li><a href="/frontend/pages/admin-courses.html">Courses</a></li>
+      <li><a href='/frontend/pages/admin-curriculum.html'>Curriculum</a></li>
+        <li><a href="/frontend/pages/admin-materials.html" class="active">Materials</a></li>
       <li><a href="/frontend/pages/admin-announcements.html">Announcements</a></li>
       <li><a href="/frontend/pages/admin-blog.html">Blog</a></li>
       <li><a href="/frontend/pages/admin-gallery.html">Gallery</a></li>
@@ -42,15 +46,19 @@
       <form id="materialForm">
         <div class="form-row">
           <label for="materialTitle">Title</label>
-          <input type="text" id="materialTitle" name="materialTitle" />
+          <input type="text" id="materialTitle" name="materialTitle" required />
+        </div>
+        <div class="form-row">
+          <label for="materialDescription">Description</label>
+          <textarea id="materialDescription" name="materialDescription" rows="3" required></textarea>
         </div>
         <div class="form-row">
           <label for="courseCode">Course Code</label>
-          <input type="text" id="courseCode" name="courseCode" required />
+          <input type="text" id="courseCode" name="courseCode" />
         </div>
         <div class="form-row">
-          <label for="materialFile">File</label>
-          <input type="file" id="materialFile" name="materialFile" required />
+          <label for="materialFile">PDF File</label>
+          <input type="file" id="materialFile" name="materialFile" accept="application/pdf" required />
         </div>
 
         <button type="submit" class="primary-btn">Upload Material</button>
@@ -72,6 +80,10 @@
       <input type="text" id="editMaterialTitle" />
     </div>
     <div class="form-row">
+      <label for="editMaterialDescription">Description</label>
+      <textarea id="editMaterialDescription" rows="3"></textarea>
+    </div>
+    <div class="form-row">
       <label for="editMaterialCourse">Course Code</label>
       <input type="text" id="editMaterialCourse" />
     </div>
@@ -84,6 +96,9 @@
 
 <script src="../js/admin-guard.js"></script>
 <script src="../js/admin-logout.js"></script>
+<script src="../js/admin-theme.js"></script>
 <script src="../js/admin-materials.js"></script>
 </body>
 </html>
+
+

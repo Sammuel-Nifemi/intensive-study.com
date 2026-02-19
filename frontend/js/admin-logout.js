@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
     window.location.href = "/frontend/pages/admin-login.html";
   });
 });

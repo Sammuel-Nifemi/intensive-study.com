@@ -1,5 +1,7 @@
 const Attempt = require("../models/Attempt");
 const Exam = require("../models/Exam");
+const mongoose = require("mongoose");
+const Student = require("../models/Student");
 
 exports.getExamReview = async (req, res) => {
   try {
@@ -42,5 +44,34 @@ exports.getExamReview = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load review" });
+  }
+};
+
+exports.submitStudentReview = async (req, res) => {
+  try {
+    const message = String(req.body?.message || "").trim();
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const student = await Student.findOne({ user_id: req.user.id }).select("_id");
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const doc = {
+      studentId: student._id,
+      message,
+      timestamp: new Date()
+    };
+
+    const result = await mongoose.connection.collection("student_reviews").insertOne(doc);
+    return res.status(201).json({
+      message: "Review request submitted",
+      reviewId: result.insertedId
+    });
+  } catch (err) {
+    console.error("Submit student review error:", err);
+    return res.status(500).json({ message: "Failed to submit review" });
   }
 };

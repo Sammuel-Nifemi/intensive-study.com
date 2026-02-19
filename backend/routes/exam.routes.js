@@ -6,10 +6,9 @@ const {
   submitExam
 } = require("../controllers/exam.controller");
 
-const auth = require("../middleware/auth");
-const studentOnly = require("../middleware/studentOnly");
+const authStudent = require("../middleware/authStudent");
 
-router.post("/start/:examId", auth, studentOnly, startExam);
-router.post("/submit", auth, studentOnly, submitExam);
+router.post("/start/:examId", authStudent, startExam);
+router.post("/submit", authStudent, submitExam);
 
 module.exports = router;

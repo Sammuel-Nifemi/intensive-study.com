@@ -29,7 +29,9 @@ exports.getStudentDashboard = async (req, res) => {
       .select("course_id");
     const registeredCourses = courseLinks.map(link => link.course_id);
 
-    const profileCompleted = Boolean(student?.profile_complete);
+    const profileCompleted = Boolean(
+      student?.profileCompleted || student?.profileComplete || student?.profile_complete
+    );
     const hasCourses = registeredCourses.length > 0;
 
     const canTakeExams = profileCompleted && hasCourses;
@@ -69,6 +71,7 @@ exports.getStudentDashboard = async (req, res) => {
         studyCenter: studyCenterName || student.study_center || null,
         registeredCourses,
         profile_complete: student.profile_complete ?? false,
+        profileComplete: student.profileComplete ?? false,
         profileCompleted
       },
       canTakeExams,

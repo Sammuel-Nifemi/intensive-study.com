@@ -14,14 +14,18 @@ router.get("/", async (req, res) => {
 
 // ADD study center
 router.post("/", async (req, res) => {
-  const { state, name } = req.body;
+  const { state, name, city } = req.body;
 
-  if (!state || !name) {
-    return res.status(400).json({ message: "State and name are required" });
+  if (!name || !(city || state)) {
+    return res.status(400).json({ message: "City (or state) and name are required" });
   }
 
   try {
-    const center = await StudyCenter.create({ state, name });
+    const center = await StudyCenter.create({
+      name,
+      city: city || state || "",
+      state: state || ""
+    });
     res.json(center);
   } catch (err) {
     res.status(500).json({ message: "Failed to add study center" });

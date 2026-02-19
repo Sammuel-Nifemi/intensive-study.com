@@ -4,6 +4,8 @@ const announcementSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     message: { type: String, required: true },
+    body: { type: String },
+    attachments: { type: [String], default: [] },
     target: {
       type: String,
       enum: ["all", "faculty", "level"],
@@ -15,6 +17,7 @@ const announcementSchema = new mongoose.Schema(
       ref: "User"
     },
     createdRole: { type: String },
+    staffId: { type: mongoose.Schema.Types.ObjectId, ref: "Staff" },
     // staff: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: "Staff",

@@ -2,9 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const { downloadResultsPDF } = require("../controllers/pdf.controller");
-const auth = require("../middleware/auth");
-const studentOnly = require("../middleware/studentOnly");
+const authStudent = require("../middleware/authStudent");
 
-router.get("/results/pdf", auth, studentOnly, downloadResultsPDF);
+router.get("/results/pdf", authStudent, downloadResultsPDF);
 
 module.exports = router;

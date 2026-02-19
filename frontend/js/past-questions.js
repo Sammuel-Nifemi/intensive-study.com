@@ -1,58 +1,334 @@
+﻿const token = localStorage.getItem("studentToken");
 
-  import { trackUsage, canUseFree } from "../js/usage-engine.js";
-  import { pastQuestions } from "../js/past-questions.js";
+if (!token) {
+  window.location.href = "/frontend/pages/student-login.html";
+}
 
-  const studentId = "NOU233396887"; // mock logged-in student
+const API_BASE = "http://localhost:5000";
+let studentProfile = null;
+let registeredCourses = new Set();
+let searchTimeout = null;
 
-  window.openPastQuestion = function (pq) {
+const courseInput = document.getElementById("courseInput");
+const resultsEl = document.getElementById("pqResults");
 
-    if (!canUseFree(studentId, "pastQuestions")) {
-      alert("You have exhausted your free Past Question access.");
-      return;
+function normalizeCourseCode(value) {
+  return value.replace(/\s+/g, "").toUpperCase();
+}
+
+async function loadStudentProfile() {
+  if (studentProfile) return studentProfile;
+  try {
+    const cached = window.readStudentCache ? window.readStudentCache() : null;
+    const data = cached || (window.loadStudent ? await window.loadStudent({ force: !cached }) : null);
+    if (data) {
+      studentProfile = data;
+      const list = Array.isArray(data.registeredCourses) ? data.registeredCourses : [];
+      registeredCourses = new Set(list.map((c) => String(c).toUpperCase()));
+      return studentProfile;
     }
+  } catch (err) {
+    console.error("Failed to load student profile:", err);
+  }
+  return null;
+}
 
-    trackUsage(studentId, "pastQuestions");
+function isCourseRegistered(courseCode) {
+  if (!courseCode) return false;
+  const normalized = String(courseCode).toUpperCase();
+  return registeredCourses.has(normalized);
+}
 
-    window.location.href = pq.file;
+function ensureEntitlementModal() {
+  let modal = document.getElementById("entitlementModal");
+  if (modal) return modal;
+
+  if (!document.getElementById("entitlementModalStyles")) {
+    document.head.insertAdjacentHTML(
+      "beforeend",
+      `
+      <style id="entitlementModalStyles">
+        .entitlement-modal {
+          position: fixed;
+          inset: 0;
+          background: rgba(9, 11, 16, 0.55);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+        }
+        .entitlement-modal .modal-box {
+          width: min(420px, 92vw);
+          background: #fff;
+          border-radius: 14px;
+          padding: 20px 22px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+          text-align: center;
+        }
+        .entitlement-modal .modal-box h3 {
+          margin: 0 0 8px;
+          font-size: 1.2rem;
+        }
+        .entitlement-modal .modal-box p {
+          margin: 8px 0;
+          color: #2d2d2d;
+        }
+        .entitlement-modal .entitlement-status {
+          font-weight: 600;
+          color: #0b5ed7;
+          min-height: 20px;
+        }
+        .entitlement-modal .modal-actions {
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+          margin-top: 16px;
+        }
+        .entitlement-modal .modal-actions button {
+          border: 0;
+          border-radius: 8px;
+          padding: 10px 16px;
+          cursor: pointer;
+          font-weight: 600;
+        }
+        .entitlement-modal .btn-primary {
+          background: #0b5ed7;
+          color: #fff;
+        }
+        .entitlement-modal .btn-secondary {
+          background: #f0f2f5;
+          color: #222;
+        }
+      </style>
+      `
+    );
+  }
+
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    `
+    <div id="entitlementModal" class="entitlement-modal" role="dialog" aria-modal="true">
+      <div class="modal-box">
+        <h3>Access Required</h3>
+        <p id="entitlementMessage"></p>
+        <p><strong id="entitlementAmount"></strong></p>
+        <p id="entitlementStatus" class="entitlement-status"></p>
+        <div class="modal-actions">
+          <button id="entitlementPayBtn" class="btn-primary" type="button">Pay</button>
+          <button id="entitlementCancelBtn" class="btn-secondary" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+    `
+  );
+
+  modal = document.getElementById("entitlementModal");
+  return modal;
+}
+
+async function requestPayPerUse({ courseCode, platform, resourceId }) {
+  const copy = {
+    message:
+      "This course was not part of your registered semester courses.\nTo continue, please pay ₦500 to unlock this course.",
+    amount: "₦500",
+    payLabel: "Pay ₦500",
+    successText: "Payment successful. You may proceed."
   };
 
-export const pastQuestions = [
-  {
-    courseCode: "GST101",
-    title: "Use of English",
-    session: "2021/2022",
-    semester: "First",
-    file: "../uploads/past-questions/gst101-2021-first.pdf",
-    visibility: "students"
-  },
-  {
-    courseCode: "GST105",
-    title: "History and Philosophy of Science",
-    session: "2020/2021",
-    semester: "Second",
-    file: "../uploads/past-questions/gst105-2020-second.pdf",
-    visibility: "students"
-  }
-];
-// course-materials.js
+  const modal = ensureEntitlementModal();
+  const messageEl = modal.querySelector("#entitlementMessage");
+  const amountEl = modal.querySelector("#entitlementAmount");
+  const statusEl = modal.querySelector("#entitlementStatus");
+  const payBtn = modal.querySelector("#entitlementPayBtn");
+  const cancelBtn = modal.querySelector("#entitlementCancelBtn");
 
-document.addEventListener("DOMContentLoaded", () => {
-  // 1️⃣ Read course from URL
-  const params = new URLSearchParams(window.location.search);
-  const courseCode = params.get("course");
+  messageEl.textContent = copy.message;
+  amountEl.textContent = copy.amount;
+  statusEl.textContent = "";
+  payBtn.textContent = copy.payLabel;
+  payBtn.disabled = false;
+  cancelBtn.disabled = false;
 
-  if (!courseCode) {
-    alert("No course selected");
-    window.location.href = "/student-dashboard.html";
+  modal.style.display = "flex";
+
+  return new Promise((resolve) => {
+    const cleanup = () => {
+      modal.style.display = "none";
+      payBtn.onclick = null;
+      cancelBtn.onclick = null;
+      payBtn.disabled = false;
+      cancelBtn.disabled = false;
+    };
+
+    payBtn.onclick = async () => {
+      payBtn.disabled = true;
+      cancelBtn.disabled = true;
+      payBtn.textContent = "Processing...";
+      statusEl.textContent = "";
+
+      try {
+        const payRes = await fetch(`${API_BASE}/api/payments/mock`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: 500, courseCode, platform })
+        });
+        const payData = await payRes.json().catch(() => ({}));
+        if (!payRes.ok || payData.status !== "success") {
+          statusEl.textContent = "Payment failed. Please try again.";
+          payBtn.disabled = false;
+          cancelBtn.disabled = false;
+          payBtn.textContent = copy.payLabel;
+          return;
+        }
+
+        await fetch(`${API_BASE}/api/access/log`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            student_id: studentProfile?._id || null,
+            resourceId: resourceId || courseCode,
+            amount: payData.amount || 500,
+            reference: payData.reference,
+            course_code: courseCode,
+            platform
+          })
+        });
+
+        statusEl.textContent = copy.successText;
+        setTimeout(() => {
+          cleanup();
+          resolve(true);
+        }, 700);
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Payment failed. Please try again.";
+        payBtn.disabled = false;
+        cancelBtn.disabled = false;
+        payBtn.textContent = copy.payLabel;
+      }
+    };
+
+    cancelBtn.onclick = () => {
+      cleanup();
+      resolve(false);
+    };
+  });
+}
+
+async function ensurePaidAccess(courseCode, platform, resourceId) {
+  return true;
+}
+
+function renderPastQuestions(courseCode, items) {
+  if (!resultsEl) return;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    resultsEl.innerHTML = "<p>Past questions will show here when uploaded.</p>";
     return;
   }
 
-  // 2️⃣ Show course title
-  const titleEl = document.getElementById("courseTitle");
-  if (titleEl) {
-    titleEl.textContent = `Course Materials — ${courseCode}`;
+  resultsEl.innerHTML = items
+    .map((item) => {
+      const isSummary = item.type === "summary";
+      const label = isSummary ? "Summary" : "Past Question";
+      const buttonLabel = isSummary ? "Open Summary" : "View Past Question";
+      const yearText = item.year ? ` • ${item.year}` : "";
+      const title = item.title || `${courseCode} ${label}`;
+
+      return `
+        <div class="pq-card">
+          <h3>${title}</h3>
+          <p>${label}${yearText}</p>
+          <button class="pq-open-btn" data-course="${courseCode}" data-url="${item.fileUrl}" data-type="${isSummary ? "summary" : "pq"}">
+            ${buttonLabel}
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+async function loadPastQuestions(courseCode) {
+  if (!resultsEl) return;
+
+  resultsEl.innerHTML = "<p>Loading...</p>";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/past-questions/${courseCode}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      resultsEl.innerHTML = `<p>${data.message || "Past questions will show here when uploaded."}</p>`;
+      return;
+    }
+
+    renderPastQuestions(courseCode, data.items || []);
+  } catch (err) {
+    console.error(err);
+    resultsEl.innerHTML = "<p>Past questions will show here when uploaded.</p>";
+  }
+}
+
+window.searchCourse = function searchCourse() {
+  if (!courseInput || !resultsEl) return;
+
+  const raw = courseInput.value.trim();
+  if (!raw) {
+    resultsEl.innerHTML = "";
+    return;
   }
 
-  // 3️⃣ (NEXT STEP) Fetch materials from backend
-  // fetch(`/api/materials/${courseCode}`)
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    const courseCode = normalizeCourseCode(raw);
+    if (!courseCode) return;
+    loadPastQuestions(courseCode);
+  }, 300);
+};
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest(".pq-open-btn");
+  if (!btn) return;
+
+  event.preventDefault();
+  const courseCode = btn.getAttribute("data-course");
+  const url = btn.getAttribute("data-url");
+  if (!courseCode || !url) return;
+
+  window.open(url, "_blank", "noopener");
 });
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await window.ISA_LearningProtection?.activateWatermark();
+  await window.ISA_LearningProtection?.addPdfDownloadButton({
+    hostSelector: ".page-header",
+    buttonText: "Download as PDF",
+    fileName: () => {
+      const code = normalizeCourseCode(document.getElementById("courseInput")?.value || "past-questions");
+      return `${code.toLowerCase()}-past-questions.pdf`;
+    },
+    courseCode: () => normalizeCourseCode(document.getElementById("courseInput")?.value || "PASTQ"),
+    title: "Past Questions & Summaries",
+    getContentText: () => {
+      const heading = document.querySelector(".page-header h1")?.innerText || "";
+      const query = document.getElementById("courseInput")?.value || "";
+      const results = document.getElementById("pqResults")?.innerText || "";
+      return [heading, `Course: ${query}`, results].filter(Boolean).join("\n\n");
+    }
+  });
+
+  const watermarkEl = document.querySelector(".system-watermark");
+  if (!watermarkEl) return;
+  const profile = await loadStudentProfile();
+  if (!profile) return;
+  const line =
+    window.ISA_LearningProtection?.buildWatermarkLine(profile) ||
+    "Student • ISA-00000 • IntensiveStudyAcademy.com • 08127796978 • 07073859837";
+  watermarkEl.textContent = line;
+});
+
+
+

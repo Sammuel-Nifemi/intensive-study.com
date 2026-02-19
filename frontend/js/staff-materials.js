@@ -4,11 +4,10 @@
 ===================================================== */
 
 // AUTH GUARD
-const token = localStorage.getItem("token");
-const role = localStorage.getItem("role");
+const token = localStorage.getItem("staffToken");
 const staffProfile = JSON.parse(localStorage.getItem("staffProfile"));
 
-if (!token || role !== "staff" || !staffProfile) {
+if (!token || !staffProfile) {
   window.location.href = "staff-login.html";
 }
 
@@ -118,7 +117,9 @@ materialList.addEventListener("click", e => {
 
 /* ================= LOGOUT ================= */
 document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("staffToken");
   localStorage.removeItem("token");
+  localStorage.removeItem("authToken");
   localStorage.removeItem("role");
   localStorage.removeItem("staffProfile");
   window.location.href = "staff-login.html";

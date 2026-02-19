@@ -5,10 +5,9 @@
 ===================================================== */
 
 /* ================= PAGE GUARD ================= */
-const role = localStorage.getItem("role");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("studentToken");
 
-if (!token || role !== "student") {
+if (!token) {
   window.location.href = "/frontend/pages/mock-exams.html";
 
 
@@ -85,3 +84,4 @@ exam.questions.forEach(q => {
     </li>
   `;
 });
+

@@ -1,11 +1,10 @@
 /* ===============================
    PAGE GUARD
 ================================ */
-const role = localStorage.getItem("role");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("adminToken");
 
-if (!token || role !== "admin") {
-  window.location.href = "../login.html";
+if (!token) {
+  window.location.href = "/frontend/pages/admin-login.html";
 }
 
 /* ===============================

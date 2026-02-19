@@ -1,39 +1,109 @@
+const STUDENT_CACHE_KEY = "studentProfileCache";
 
-(async function protectStudentPage() {
-  const token = localStorage.getItem("token");
+function readStudentCache() {
+  try {
+    const raw = localStorage.getItem(STUDENT_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
-  // 🚫 No token → login
+function writeStudentCache(profile) {
+  try {
+    localStorage.setItem(STUDENT_CACHE_KEY, JSON.stringify(profile));
+  } catch {
+    // ignore cache write errors
+  }
+}
+
+function wrapFetchForRedirect() {
+  if (window.__studentFetchWrapped) return;
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = async (...args) => {
+    const res = await originalFetch(...args);
+    if (res.status === 403) {
+      try {
+        const clone = res.clone();
+        const data = await clone.json();
+        if (data?.redirectUrl) {
+          window.location.href = data.redirectUrl;
+        }
+      } catch {
+        // ignore JSON parse failures
+      }
+    }
+    return res;
+  };
+  window.__studentFetchWrapped = true;
+}
+
+async function loadStudent({ force = false } = {}) {
+  const token = localStorage.getItem("studentToken");
   if (!token) {
-    window.location.href = "/login.html";
-    return;
+    window.location.href = "/frontend/pages/student-login.html";
+    return null;
+  }
+
+  const cached = readStudentCache();
+  if (cached && !force) {
+    return cached;
   }
 
   try {
-    const res = await fetch("http://localhost:5000/api/students/dashboard", {
+    const res = await fetch("http://localhost:5000/api/student/me", {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
 
-    // 🚫 Not authenticated
     if (res.status === 401) {
+      localStorage.removeItem("studentToken");
       localStorage.removeItem("token");
-      window.location.href = "/login.html";
-      return;
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("role");
+      window.location.href = "/frontend/pages/student-login.html";
+      return null;
     }
 
-    // 🚫 Profile not completed
-    if (res.status === 403) {
-      window.location.href = "/complete-profile.html";
-      return;
+    if (!res.ok) {
+      return null;
     }
 
-    // ✅ Allowed
     const data = await res.json();
-    window.studentData = data; // available globally
-
+    writeStudentCache(data);
+    return data;
   } catch (err) {
     console.error("Auth check failed", err);
-    window.location.href = "/login.html";
+    return null;
+  }
+}
+
+window.loadStudent = window.loadStudent || loadStudent;
+window.readStudentCache = window.readStudentCache || readStudentCache;
+
+(async function protectStudentPage() {
+  const token = localStorage.getItem("studentToken");
+  window.NOTIFICATION_TOKEN = token;
+
+  // No token -> login
+  if (!token) {
+    window.location.href = "/frontend/pages/student-login.html";
+    return;
+  }
+
+  wrapFetchForRedirect();
+
+  const data = await loadStudent();
+  if (!data) {
+    window.location.href = "/frontend/pages/student-login.html";
+    return;
+  }
+
+  const path = window.location.pathname;
+  const isDashboard = path.includes("student-dashboard");
+  const isCompleteProfile = path.includes("complete-profile");
+  if (!data.profileCompleted && !isDashboard && !isCompleteProfile) {
+    window.location.href = "/frontend/pages/complete-profile.html";
   }
 })();

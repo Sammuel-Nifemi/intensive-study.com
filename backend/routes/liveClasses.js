@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 const Student = require("../models/Student");
 const StudentCourse = require("../models/StudentCourse");
 const LiveClass = require("../models/LiveClass");
 
 // GET /student/live-classes
-router.get("/live-classes", auth, async (req, res) => {
+router.get("/live-classes", authStudent, checkStudentProfileComplete, async (req, res) => {
   try {
     const student = await Student.findOne({ user_id: req.user.id });
     if (!student) {

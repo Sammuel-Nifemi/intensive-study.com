@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const studentGuard = require("../middleware/studentProfileGuard");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 const reviewController = require("../controllers/reviewController");
 
 router.get(
   "/:attemptId",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   reviewController.getExamReview
 );
 

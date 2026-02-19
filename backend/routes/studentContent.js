@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
+const authStudent = require("../middleware/authStudent");
 const Student = require("../models/Student");
 const StudentCourse = require("../models/StudentCourse");
 const Content = require("../models/Content");
 
 // GET /student/content
-router.get("/content", auth, async (req, res) => {
+router.get("/content", authStudent, async (req, res) => {
   try {
     const student = await Student.findOne({ user_id: req.user.id });
     if (!student) {

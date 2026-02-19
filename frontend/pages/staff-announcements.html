@@ -42,13 +42,13 @@
   <h3>New Announcement</h3>
 
   <label>Title</label>
-  <input type="text" id="title" required />
+  <input type="text" id="title" name="title" required />
 
   <label>Message</label>
-  <textarea id="message" rows="5" required></textarea>
+  <textarea id="message" name="body" rows="5" required></textarea>
 
-  <label>Attach Image (optional)</label>
-  <input type="file" name="image" accept="image/*" />
+  <label>Attach Files (optional)</label>
+  <input type="file" name="files" accept=".pdf,.jpg,.jpeg" multiple />
 
   <button type="submit">Publish</button>
 </form>

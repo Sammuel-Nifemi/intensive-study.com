@@ -1,170 +1,247 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Academic Hub | Intensive Study Academy</title>
+  <title>Course Materials | Intensive Study Academy</title>
 
-  <!-- Icons -->
+  <link rel="stylesheet" href="../css/student-dashboard.css" />
+  <link rel="stylesheet" href="../css/theme.css" />
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
 
-  <!-- Global styles -->
-  <link rel="stylesheet" href="../index.css">
-  <link rel="stylesheet" href="../css/blog.css">
-  <link rel="stylesheet" href="../css/theme.css">
+  <style>
+    .materials-shell {
+      max-width: 100%;
+    }
+
+    .search-wrap,
+    .results-wrap {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .search-wrap label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #0f172a;
+    }
+
+    #materialsSearch {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      background: #fff;
+    }
+
+    #materialsSearch:focus {
+      border-color: #0f766e;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    .material-accordion-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .material-accordion-trigger {
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      border: 0;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .material-accordion-meta {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .material-accordion-body {
+      display: none;
+      padding: 14px 16px 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .material-accordion-card.open .material-accordion-body {
+      display: block;
+    }
+
+    .result-title {
+      margin: 0 0 4px;
+      color: #0f172a;
+      font-size: 1rem;
+    }
+
+    .result-meta {
+      margin: 0;
+      color: #475569;
+      font-size: 0.93rem;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 9px;
+      background: #0f766e;
+      color: #fff;
+      padding: 10px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .download-btn:hover {
+      background: #0b5f58;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .ai-explain-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #0f766e;
+      border-radius: 9px;
+      background: #fff;
+      color: #0f766e;
+      padding: 10px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .muted {
+      margin: 0;
+      color: #64748b;
+    }
+
+    @media (max-width: 700px) {
+      .material-accordion-trigger {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .download-btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
-<body>
+<body class="page-student-dashboard">
+<header class="dashboard-header">
+  <div class="header-container">
+    <div class="logo">
+      <img src="../image/isa.png" alt="Intensive Study Academy Logo">
+    </div>
 
-<!-- ================= HEADER ================= -->
-<header class="header">
-  <a href="../index.html">
-    <img src="../image/isa.png" alt="Intensive Study Academy logo" class="logo">
-  </a>
+    <div class="user-text">
+      <span class="welcome-text" id="studentName">Loading...</span>
+    </div>
 
-  <nav class="navbar">
-    <ul>
-      <li><a href="../index.html">Home</a></li>
-      <li><a href="../pages/resources.html">Academic Resources</a></li>
-      <li><a href="../pages/blog.html">Academic Blog</a></li>
-    </ul>
-  </nav>
+    <div class="notification-wrapper">
+      <button id="notificationBell" class="notification-bell" type="button" aria-label="Notifications">
+        <span class="bell-icon">&#128276;</span>
+        <span id="notificationBadge" class="notification-badge" hidden>0</span>
+      </button>
+      <div id="notificationDropdown" class="notification-dropdown" hidden></div>
+    </div>
+  </div>
 </header>
 
-<!-- ================= MAIN ================= -->
-<main class="blog-post">
-
-  <div class="post-intro">
-    <h1>Academic Hub</h1>
-    <p>Your courses, resources, and mock exams — all in one place.</p>
-  </div>
-
-  <!-- ================= ACADEMIC SUMMARY ================= -->
-  <section class="hub-card summary-card">
-    <div class="summary-left">
-      <h2 id="studentNameSummary">Student</h2>
-      <p class="summary-sub">Academic Summary</p>
-    </div>
-    <div class="summary-grid">
-      <div class="summary-item">
-        <span>Program</span>
-        <strong id="summaryProgram">—</strong>
-      </div>
-      <div class="summary-item">
-        <span>Faculty</span>
-        <strong id="summaryFaculty">—</strong>
-      </div>
-      <div class="summary-item">
-        <span>Level</span>
-        <strong id="summaryLevel">—</strong>
-      </div>
-      <div class="summary-item">
-        <span>Semester</span>
-        <strong id="summarySemester">—</strong>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= COURSE GRID ================= -->
-  <section class="resource-section">
-    <div id="courseList" class="course-grid"></div>
-  </section>
-
-  <!-- ================= MATERIALS ================= -->
-  <section class="resource-section">
-    <h2>Available Resources</h2>
-
-    <!-- SEARCH -->
-    <input
-      type="text"
-      id="resourceSearch"
-      placeholder="Search materials (e.g. summary, notes, pdf)"
-      class="resource-search"
-    />
-
-    <!-- JS RENDERS MATERIALS HERE -->
-    <div id="materialsContainer"></div>
-  </section>
-
-  <!-- ================= TIPS ================= -->
-  <section class="hub-card tips-card">
-    <h3>Student Tips</h3>
-    <ul>
-      <li>Review your summary notes before attempting mocks.</li>
-      <li>Practice under timed conditions to build confidence.</li>
-      <li>Focus on topics you missed in the last attempt.</li>
+<div class="dashboard-layout">
+  <nav class="dashboard-sidebar" aria-label="Student Navigation">
+    <ul class="sidebar-top">
+      <li><a href="/frontend/pages/student-dashboard.html">Dashboard</a></li>
+      <li><a href="/frontend/pages/course-materials.html" class="active">Course Materials</a></li>
+      <li><a href="/frontend/pages/mock-exams.html">Mock Exams</a></li>
+      <li><a id="feeAnalyzerLink" href="/frontend/pages/fees.html">Fee Analyzer</a></li>
+      <li><a href="/frontend/pages/exam-timetable.html">Exam Timetable</a></li>
+      <li><a href="/frontend/pages/past-questions.html">Past Questions</a></li>
+      <li><a href="/frontend/pages/live-classes.html">Live Classes</a></li>
+      <li class="divider"></li>
+      <li><a href="/frontend/pages/ai-assistant.html">AI Assistant</a></li>
+      <li><a href="/frontend/pages/student-profile.html">Profile</a></li>
+      <li><a href="/frontend/pages/student-settings.html">Settings</a></li>
     </ul>
-  </section>
 
-</main>
-<a href="https://wa.me/2347073859837" class="whatsapp-float" target="_blank" aria-label="Get help on WhatsApp">
-  <i class="fab fa-whatsapp"></i>
-  <span class="whatsapp-label">Get help</span>
-</a>
-
-<!-- ================= FOOTER ================= -->
-<footer class="site-footer">
-  <div class="footer-brand">
-    <img src="../image/isa.png" alt="Intensive Study Academy Logo">
-    <p>
-      Intensive Study Academy is a registered educational consulting and
-      academic support organization committed to clarity, integrity,
-      and student success.
-    </p>
-  </div>
-
-  <div class="footer-contact">
-    <h4>Contact</h4>
-    <p><strong>Phone:</strong> +234 803 927 4408</p>
-    <p><strong>Email:</strong> admin@intensivestudyacademy.com</p>
-    <p><strong>CAC Reg No:</strong> 9144243</p>
-  </div>
-
-  <div class="footer-social">
-    <h4>Connect</h4>
-    <div class="social-icons">
-      <a href="https://wa.me/2348039274408" target="_blank"><i class="fab fa-whatsapp"></i></a>
-      <a href="https://www.instagram.com/intensive_study_group" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="#"><i class="fab fa-facebook"></i></a>
-      <a href="mailto:admin@intensivestudyacademy.com"><i class="fas fa-envelope"></i></a>
+    <div class="sidebar-bottom">
+      <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
     </div>
-  </div>
+  </nav>
 
-  <div class="footer-bottom">
-    <p>© <span id="year"></span> Intensive Study Academy.</p>
-  </div>
-</footer>
+  <main class="dashboard-main materials-shell">
+    <section class="page-header">
+      <h1>Course Materials</h1>
+      <p>Public resource library. Search and download materials by title or course code.</p>
+    </section>
 
-<!-- ================= WATERMARK ================= -->
-<div class="system-watermark">
-  UNOFFICIAL · ACADEMIC GUIDANCE ONLY
+    <section class="search-wrap">
+      <label for="materialsSearch">Search materials</label>
+      <input id="materialsSearch" type="text" placeholder="Search by title or course code (e.g. GST 101)" />
+    </section>
+
+    <section class="results-wrap">
+      <div id="materialsResults">
+        <p class="muted">Loading materials...</p>
+      </div>
+    </section>
+  </main>
 </div>
 
-<script src="../js/theme.js"></script>
-<script src="/js/studentGuard.js"></script>
-<!-- ================= SCRIPTS ================= -->
-<script src="../js/course-materials.js"></script>
+<footer class="dashboard-footer">
+  <p>Â© Intensive Study Academy - Academic Guidance Platform</p>
+  <p class="disclaimer">
+    This platform provides academic guidance only and is not affiliated with
+    the National Open University of Nigeria (NOUN).
+  </p>
+</footer>
 
-<!-- ================= SEARCH FILTER LOGIC ================= -->
 <script>
-  const searchInput = document.getElementById("resourceSearch");
-
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase();
-    const cards = document.querySelectorAll(".material-card");
-
-    cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(query) ? "" : "none";
-    });
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    localStorage.removeItem("studentToken");
+    localStorage.removeItem("token");
+    window.location.href = "/frontend/pages/student-login.html";
   });
 </script>
-
+<script src="/frontend/js/student-auth-guard.js"></script>
+<script src="../js/notifications.js"></script>
+<script src="../js/course-materials.js"></script>
+  <script src="../js/theme.js"></script>
 </body>
 </html>
+
 
 
 

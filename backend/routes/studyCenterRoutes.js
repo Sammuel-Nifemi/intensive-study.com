@@ -10,12 +10,14 @@ const StudyCenter = require("../models/StudyCenter");
 router.get("/public/study-centers", async (req, res) => {
   try {
     const filter = {};
-    if (req.query.state) {
+    if (req.query.city) {
+      filter.city = req.query.city;
+    } else if (req.query.state) {
       filter.state = req.query.state;
     }
 
     const centers = await StudyCenter.find(filter).sort({
-      state: 1,
+      city: 1,
       name: 1
     });
 

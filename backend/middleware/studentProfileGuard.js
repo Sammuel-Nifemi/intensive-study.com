@@ -1,5 +1,6 @@
 
 
+const User = require("../models/User");
 const Student = require("../models/Student");
 
 module.exports = async (req, res, next) => {
@@ -12,19 +13,18 @@ module.exports = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    if (
-  !user.student ||
-  !user.student.department ||
-  !user.student.level ||
-  !user.student.semester
-) {
+    const student = await Student.findOne({ user_id: user._id });
+    if (!student) {
+      return res.status(403).json({ message: "Complete your profile to continue" });
+    }
 
-  
-  return res.status(403).json({
-    message: "Complete your profile to continue"
-  });
-}
+    const profileCompleted = Boolean(
+      student.profileCompleted || student.profileComplete || student.profile_complete
+    );
 
+    if (!profileCompleted) {
+      return res.status(403).json({ message: "Complete your profile to continue" });
+    }
 
     next();
   } catch (err) {

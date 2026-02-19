@@ -3,10 +3,9 @@
 ===================================================== */
 
 /* ================= PAGE GUARD ================= */
-const role = localStorage.getItem("role");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("studentToken");
 
-if (!token || role !== "student") {
+if (!token) {
   // window.location.href = "../pages/student-login.html";
 }
 
@@ -152,3 +151,4 @@ function submitExam() {
 
 /* ================= INIT ================= */
 renderQuestion();
+

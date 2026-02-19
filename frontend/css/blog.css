@@ -11,6 +11,20 @@
   --text-muted: #555;
 }
 
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--blue-main);
+  text-decoration: none;
+  margin: 14px 0 10px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
 /* =========================================
    PAGE WRAPPER
 ========================================= */

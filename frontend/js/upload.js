@@ -3,9 +3,9 @@
 ===================================================== */
 
 /* ================= ROLE GUARD ================= */
-const role = localStorage.getItem("role");
-if (role !== "staff" && role !== "admin") {
-  window.location.href = "staff-login.html";
+const token = localStorage.getItem("adminToken");
+if (!token) {
+  window.location.href = "/frontend/pages/admin-login.html";
 }
 
 /* ================= STORAGE ================= */
@@ -57,7 +57,7 @@ uploadForm?.addEventListener("submit", e => {
     courseCode: course.code,
     type,
     title,
-    uploadedBy: role,
+    uploadedBy: "admin",
     date: new Date().toLocaleDateString()
   };
 

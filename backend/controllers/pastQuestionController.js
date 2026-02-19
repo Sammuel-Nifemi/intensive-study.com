@@ -9,6 +9,8 @@ exports.getPastQuestionsByCourse = async (req, res) => {
       isActive: true
     }).sort({ year: -1 });
 
+    // Usage for PQ/Summary is recorded on access (consume endpoint)
+
     res.json({
       courseCode,
       count: questions.length,

@@ -1,135 +1,172 @@
+﻿(() => {
+  const API_BASE = "http://localhost:5000";
 
-// =========================
-// COURSES
-// =========================
-function loadAutoCourses(student) {
-  const allCourses = JSON.parse(localStorage.getItem("courses")) || [];
-  const compulsoryList = document.getElementById("compulsoryCourses");
-  const electiveList = document.getElementById("electiveCourses");
-  if (!compulsoryList || !electiveList) return;
+  const applyTheme = () => {
+    const theme = localStorage.getItem("theme") || "classic";
+    document.body.setAttribute("data-theme", theme);
+  };
 
-  compulsoryList.innerHTML = "";
-  electiveList.innerHTML = "";
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
-  const matchedCourses = allCourses.filter(c =>
-    c.programId === student.programId &&
-    String(c.level) === String(student.level) &&
-    c.semester === student.semester
-  );
+  const safeText = (id, value) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = value ?? "";
+  };
 
-  if (!matchedCourses.length) {
-    compulsoryList.innerHTML = "<li>No courses assigned yet.</li>";
-    return;
-  }
+  const setDirectiveCard = (profile) => {
+    const card = document.querySelector(".directive-card");
+    if (!card) return;
 
-  matchedCourses.forEach(course => {
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${course.code}</strong> — ${course.title}`;
-    course.type === "C"
-      ? compulsoryList.appendChild(li)
-      : electiveList.appendChild(li);
-  });
-}
+    const courses = Array.isArray(profile?.registeredCourses)
+      ? profile.registeredCourses.filter(Boolean)
+      : [];
 
-// =========================
-// ANNOUNCEMENTS
-// =========================
-async function loadAnnouncements(token) {
-  const list = document.getElementById("announcementList");
-  if (!list) return;
-
-  try {
-    const res = await fetch("http://localhost:5000/api/students/announcements", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const announcements = await res.json();
-    list.innerHTML = announcements.length
-      ? announcements.map(a => `<li><strong>${a.title}</strong><br>${a.message}</li>`).join("")
-      : "<li>No announcements yet.</li>";
-
-  } catch {
-    list.innerHTML = "<li>Unable to load announcements.</li>";
-  }
-}
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const urlToken = params.get("token");
-  if (urlToken) {
-    localStorage.setItem("authToken", urlToken);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-  applyTheme();
-  loadStudent();
-});
-
-async function loadStudent() {
-  const token = localStorage.getItem("authToken");
-
-  if (!token) {
-    window.location.href = "student-login.html";
-    return;
-  }
-
-  try {
-    console.log("TOKEN:", token);
-    const res = await fetch("http://localhost:5000/api/students/dashboard", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    if (!res.ok) {
-      if (res.status === 401) {
-        localStorage.removeItem("authToken");
-        window.location.href = "/frontend/pages/student-login.html";
-        return;
-      }
-      if (res.status === 403) {
-        window.location.href = "/frontend/pages/complete-profile.html";
-        return;
-      }
-      throw new Error(`Dashboard request failed (${res.status})`);
-    }
-
-    const data = await res.json();
-    const student = data.student || data;
-
-    console.log("DASHBOARD:", data);
-
-    set("studentName", student.name || student.fullName);
-    set("profileName", student.name || student.fullName);
-    set("profileEmail", student.email);
-    set("profileTitle", student.title);
-    set("profileGender", student.gender);
-    set("profilePhone", student.phone);
-
-    set("program", student.program);
-    set("faculty", student.faculty);
-    set("level", student.level);
-    set("semester", student.semester);
-    set("studyCenter", student.studyCenter?.name || student.studyCenter);
-
-    if (student.profile_complete === false) {
-      window.location.href = "/frontend/pages/complete-profile.html";
+    if (!courses.length) {
+      card.innerHTML = `
+        <h2>Course Registration Status</h2>
+        <p>Have you registered your courses on the NOUN portal yet?</p>
+        <div class="directive-actions">
+          <a class="primary-btn" href="/frontend/pages/select-courses.html">Select My Courses</a>
+          <a class="secondary-btn" href="/frontend/pages/fees.html">Use Fee Analyzer (Guide)</a>
+        </div>
+        <div class="directive-hints">
+          <p><strong>Select My Courses:</strong> Choose your registered courses to unlock materials and mocks.</p>
+          <p><strong>Use Fee Analyzer:</strong> Preview expected courses and fees for your semester.</p>
+        </div>
+      `;
       return;
     }
 
-    loadAnnouncements(token);
-    loadAutoCourses(student);
+    const list = courses
+      .map((code) => `<li>${code}</li>`)
+      .join("");
 
-  } catch (err) {
-    console.error(err);
-  }
-}
+    card.innerHTML = `
+      <h2>Registered Courses</h2>
+      <p>Great! You have already selected your courses for this semester.</p>
+      <ul class="activity-list">${list}</ul>
+      <div class="directive-actions">
+        <a class="secondary-btn" href="/frontend/pages/select-courses.html">Edit Course Selection</a>
+      </div>
+    `;
+  };
 
-function set(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value || "—";
-}
-function applyTheme() {
-  const theme = localStorage.getItem("theme") || "classic";
-  document.body.setAttribute("data-theme", theme);
-}
+  const renderProfile = (profile) => {
+    const name = profile?.fullName || profile?.name || "Student";
+    safeText("studentName", `${getGreeting()}, ${name}`);
+    safeText("profileTitle", profile?.title || "-");
+    safeText("profileName", name || "-");
+    safeText("profileGender", profile?.gender || "-");
+    safeText("profileEmail", profile?.email || "-");
+    safeText("profilePhone", profile?.phone || profile?.phoneNumber || "-");
+    setDirectiveCard(profile);
+  };
+
+  const setupReviewModal = () => {
+    const modal = document.getElementById("reviewModal");
+    const openBtn = document.getElementById("openReviewModalBtn");
+    const closeBtn = document.getElementById("closeReviewModalBtn");
+    const submitBtn = document.getElementById("submitReviewBtn");
+    const input = document.getElementById("reviewMessageInput");
+    const status = document.getElementById("reviewStatus");
+    if (!modal || !openBtn || !closeBtn || !submitBtn || !input || !status) return;
+
+    openBtn.addEventListener("click", () => {
+      modal.hidden = false;
+      status.textContent = "";
+      input.focus();
+    });
+
+    closeBtn.addEventListener("click", () => {
+      modal.hidden = true;
+      input.value = "";
+      status.textContent = "";
+    });
+
+    submitBtn.addEventListener("click", async () => {
+      const token = localStorage.getItem("studentToken");
+      const message = String(input.value || "").trim();
+      if (!message) {
+        status.textContent = "Please write a short message before submitting.";
+        return;
+      }
+
+      status.textContent = "Submitting...";
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/api/student/review`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          status.textContent = data.message || "Unable to submit now. Please try again.";
+          return;
+        }
+        status.textContent = "Thanks. Your request has been submitted.";
+        input.value = "";
+        setTimeout(() => {
+          modal.hidden = true;
+          status.textContent = "";
+        }, 900);
+      } catch (err) {
+        console.error("Review submission error:", err);
+        status.textContent = "Unable to submit now. Please try again.";
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  };
+
+  const boot = async () => {
+    try {
+      const app = document.getElementById("dashboardApp");
+      const loader = document.getElementById("dashboardLoader");
+      if (loader) loader.style.display = "none";
+      if (app) app.style.display = "block";
+
+      applyTheme();
+
+      const token = localStorage.getItem("studentToken");
+      if (!token) {
+        return;
+      }
+      setupReviewModal();
+
+      const cached = window.readStudentCache ? window.readStudentCache() : null;
+      if (cached) {
+        renderProfile(cached);
+        if (window.hydrateStudentHeader) window.hydrateStudentHeader(cached);
+      }
+
+      const profile = window.loadStudent
+        ? await window.loadStudent({ force: !cached })
+        : cached;
+
+      if (profile) {
+        renderProfile(profile);
+        if (window.hydrateStudentHeader) window.hydrateStudentHeader(profile);
+      }
+    } catch (err) {
+      console.error("Student dashboard boot error", err);
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    try {
+      boot();
+    } catch (err) {
+      console.error("Dashboard fatal error", err);
+    }
+  });
+})();

@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../middleware/auth");
-const studentGuard = require("../middleware/studentProfileGuard");
+const authStudent = require("../middleware/authStudent");
+const checkStudentProfileComplete = require("../middleware/checkStudentProfileComplete");
 const paymentController = require("../controllers/paymentController");
 
 router.post(
   "/unlock",
-  auth,
-  studentGuard,
+  authStudent,
+  checkStudentProfileComplete,
   paymentController.unlockSemesterAccess
 );
 

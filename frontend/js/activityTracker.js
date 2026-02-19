@@ -1,5 +1,5 @@
 (() => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("studentToken");
   if (!token) return;
 
   const page = window.location.pathname;
