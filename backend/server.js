@@ -64,13 +64,16 @@ startBirthdayCron();
 
 app.use(cors({
   origin: [
-    "https://intensivestudyacademy.com",
-    "https://www.intensivestudyacademy.com",
-    "http://localhost:5502"
+    "http://localhost:5502",
+    "http://127.0.0.1:5502",
+    "https://intensivestudyacademy.com"
   ],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
   credentials: true
 }));
 
+app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
