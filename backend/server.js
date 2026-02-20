@@ -63,7 +63,11 @@ startBirthdayCron();
 // const cors = require("cors");
 
 app.use(cors({
-  origin: ["http://127.0.0.1:5502", "http://localhost:5502"],
+  origin: [
+    "https://intensivestudyacademy.com",
+    "https://www.intensivestudyacademy.com",
+    "http://localhost:5502"
+  ],
   credentials: true
 }));
 
